@@ -39,15 +39,15 @@ class Compiler(nodes: Seq[Node]) {
         }
 
       case Tag(name, attributes, block, selfClose, textOnly, codeOpt, buffered) =>
-        val tagName = (if (buffered) i(" + (name) + ") else e(name))
+        val tagName = (if (buffered) i(" + (name) + ") else q(name))
         val attrs = attributes.map { attr =>
-          e(attr._1) + attr._2.map(a => e("=") + (if (isQuoted(a.value)) e(a.value) else qi(a.value))).getOrElse(i(""))
-        }.mkString(" ", " ", "") //TODO escape
+          q(attr._1) + attr._2.map(a => q("=") + (if (isQuoted(a.value)) i(attrInterpolated(a.value)) else qi(a.value))).getOrElse(nothing)
+        } //TODO escape
 
-        buf(e("<") + tagName + i(attrs) + (if (selfClose) "/>" else ">")); nl
+        buf(q("<") + tagName + (if (!attrs.isEmpty) space + i(attrs.reduce(_ + space + _)) else nothing) + (if (selfClose) "/>" else ">")); nl
 
         if (!selfClose) {
-          if (!codeOpt.isEmpty) {
+          if (codeOpt.isDefined) {
             visit(codeOpt.get)
           } else if (!block.isEmpty) {
             for {
@@ -57,17 +57,36 @@ class Compiler(nodes: Seq[Node]) {
             }
           }
           //close tag
-          buf(e("</") + tagName + ">"); nl
+          buf(q("</") + tagName + ">"); nl
         }
+
+      case Text(value) => buf(quote(value)); nl
 
       case Empty => //ignore it
     }
   }
 
-  def quote(str: String) = "\"" + str + "\""
+  val attrInterpolationRE = """(\\?)#\{([\w_-]+)\}""".r
+
+  def attrInterpolated(attr: String) = {
+    tQuote(attrInterpolationRE.replaceAllIn(attr, m => {
+      if (m.group(1) != "\\") {
+        "\"\"\" + " + m.group(2) + " + \"\"\""
+      } else {
+        "#{" + m.group(2) + "}"
+      }
+    }))
+  }
+
+  val nothing = q("")
+
+  val space = q(" ")
+
+  def tQuote(str: String) = "\"\"\"" + str + "\"\"\""
+  def quote(str: String) = "\"" + str + "\"" // """to do not worry about " and ' inside quoted string """
 
   def buf(str: String) {
-    builder ++= ("builder += (" + str + ")")
+    builder ++= ("builder ++= (" + str + ")")
   }
 
   def nl {
@@ -76,10 +95,10 @@ class Compiler(nodes: Seq[Node]) {
 
   def isQuoted(str: String) = (str.startsWith("\"") && str.endsWith("\"")) || (str.startsWith("'") && str.endsWith("'"))
 
-  def qi(s: String) = e("'") + i(s) + e("'")
+  def qi(s: String) = i("\"'\"") + i(s) + i("\"'\"")
 
   //construct evaluated string
-  def e(s: String) = new EvalString(quote(s))
+  def q(s: String) = new EvalString(quote(s))
 
   //construct evaluated string with unquoted value
   def i(s: String) = new EvalString(s)
