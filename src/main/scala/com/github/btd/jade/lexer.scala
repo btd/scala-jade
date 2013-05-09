@@ -127,7 +127,7 @@ class Lexer(var input: String) {
   def deferred = dequeue(differedTokens)
 
   def eos = {
-    if (!input.isEmpty) None
+    if (input.length != 0) None
     else {
       Some(indentStack.headOption match {
         case Some(indent) =>
@@ -324,15 +324,14 @@ class Lexer(var input: String) {
 
   private val attrName = """[\w-_]+"""
 
-  private val attrValue = """'[^'\n]+'|"[^"\n]+"|[\w-_]+"""
+  private val attrValue = """'[^'\n]+'|"[^"\n]+"|[\w_$]+"""
 
-  private val attr = """(""" + attrName + """)""" + """(?:[ \t]*(!?=)[ \t]*(""" + attrValue + """))?"""
+  private val attr = """(""" + attrName + """)""" + """(?:[ \t]*(=!?)[ \t]*(""" + attrValue + """))?"""
 
   private val attrsRE = ("""(?m)^\([ \t]*(?:""" + attr + """[ \t]*,?[ \t]*\n?[ \t]*)*\)""").r
 
   private val attrRE = ("""(?m)^[ \t]*,?[ \t]*""" + attr + """[ \t]*\n?[ \t]*""").r
 
-  //TODO on multiline attributes i lost lineno
   def attrs = {
     attrsRE.findFirstIn(input).map(newInput => {
       consume(newInput.length)
@@ -353,10 +352,12 @@ class Lexer(var input: String) {
         res = scan3(attrRE, (name, escaped, value) => {
           buffer += ((name, Option(value), escaped == "="))
         })
-      } while (!res.isEmpty)
+      } while (res.isDefined)
 
       val closed = input.length > 1 && input.charAt(0) == '/'
       if (closed) consume(1)
+
+      lineno += newInput.filter(_ == '\n').length
 
       Attrs(buffer.toList, closed)
     })
@@ -365,14 +366,17 @@ class Lexer(var input: String) {
   private val indentRE = """(?m)^\n( *)""".r
 
   def indent: Option[Token] = {
-    indentRE.findFirstMatchIn(input).map { m =>
+    indentRE.findPrefixMatchOf(input).map { m =>
       lineno += 1
 
+      //println("Indent input: " + input.map(c => if (c == '\n') "\\n" else c.toString))
+      println("Indent match: " + m.group(0).map(c => if (c == '\n') "\\n" else c.toString))
       consume(m.group(0).length)
 
       val i = m.group(1)
 
       println("indent: <" + i + ">")
+
       println(indentStack)
 
       if (input.length > 0 && input.charAt(0) == '\n') NewLine
