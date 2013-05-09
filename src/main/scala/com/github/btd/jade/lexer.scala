@@ -199,7 +199,7 @@ class Lexer(var input: String) {
   private val tagRE = """^(\w[-:\w]*)(\/?)?""".r
 
   def tag = {
-    tagRE.findFirstMatchIn(input).map { m =>
+    tagRE.findPrefixMatchOf(input).map { m =>
       consume(m.group(0).length)
 
       var name = m.group(1)
@@ -214,7 +214,7 @@ class Lexer(var input: String) {
   }
 
   def scan(regex: Regex, tok: String => Token) = {
-    regex.findFirstMatchIn(input).map { m =>
+    regex.findPrefixMatchOf(input).map { m =>
       consume(m.group(0).length)
 
       tok(m.group(1))
@@ -222,7 +222,7 @@ class Lexer(var input: String) {
   }
 
   def scan2(regex: Regex, tok: (String, String) => Token) = {
-    regex.findFirstMatchIn(input).map { m =>
+    regex.findPrefixMatchOf(input).map { m =>
       consume(m.group(0).length)
 
       tok(m.group(1), m.group(2))
@@ -339,7 +339,7 @@ class Lexer(var input: String) {
       var _input = newInput.substring(1, newInput.length - 1)
 
       def scan3(regex: Regex, tok: (String, String, String) => Unit) = {
-        regex.findFirstMatchIn(_input).map { m =>
+        regex.findPrefixMatchOf(_input).map { m =>
           _input = _input.substring(m.group(0).length)
 
           tok(m.group(1), m.group(2), m.group(3))
