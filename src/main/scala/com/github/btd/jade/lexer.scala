@@ -194,7 +194,7 @@ class Lexer(var input: String) {
 
   private val interpolationRE = """^#\{([^\n]*)\}""".r
 
-  def interpolation = scan(interpolationRE, Interpolation(_))
+  def interpolation = scan1(interpolationRE, Interpolation(_))
 
   private val tagRE = """^(\w[-:\w]*)(\/?)?""".r
 
@@ -213,7 +213,15 @@ class Lexer(var input: String) {
     }
   }
 
-  def scan(regex: Regex, tok: String => Token) = {
+  def scan0(regex: Regex, tok: => Token) = {
+    regex.findPrefixMatchOf(input).map { m =>
+      consume(m.group(0).length)
+
+      tok
+    }
+  }
+
+  def scan1(regex: Regex, tok: String => Token) = {
     regex.findPrefixMatchOf(input).map { m =>
       consume(m.group(0).length)
 
@@ -231,35 +239,35 @@ class Lexer(var input: String) {
 
   private val filterRE = """^:(\w+)""".r
 
-  def filter = scan(filterRE, Filter(_))
+  def filter = scan1(filterRE, Filter(_))
 
   private val docTypeRE = """^(?:!!!|doctype) *([^\n]+)?""".r
 
-  def doctype = scan(docTypeRE, Doctype(_))
+  def doctype = scan1(docTypeRE, Doctype(_))
 
   private val idRE = """^#([\w-]+)""".r
 
-  def id = scan(idRE, Id(_))
+  def id = scan1(idRE, Id(_))
 
   private val classNameRE = """^\.([\w-]+)""".r
 
-  def className = scan(classNameRE, Class(_))
+  def className = scan1(classNameRE, Class(_))
 
   private val textRE = """^(?:\| ?| ?)?([^\n]+)""".r
 
-  def text = scan(textRE, Text(_))
+  def text = scan1(textRE, Text(_))
 
   private val extendsRE = """^extends?\s+([^\n]+)""".r
 
-  def extend = scan(extendsRE, Extends(_))
+  def extend = scan1(extendsRE, Extends(_))
 
   private val prependRE = """^prepend +([^\n]+)""".r
 
-  def prepend = scan(prependRE, Block(_, "prepend"))
+  def prepend = scan1(prependRE, Block(_, "prepend"))
 
   private val appendRE = """^append +([^\n]+)""".r
 
-  def append = scan(appendRE, Block(_, "append"))
+  def append = scan1(appendRE, Block(_, "append"))
 
   private val blockRE = """^block\b\s*(?:(prepend|append)\s+)?([^\n]*)""".r
 
@@ -267,23 +275,23 @@ class Lexer(var input: String) {
 
   private val yieldRE = """^yield\s*""".r
 
-  def _yield = scan(yieldRE, _ => Yield)
+  def _yield = scan0(yieldRE, Yield)
 
   private val includeRE = """^include +([^\n]+)""".r
 
-  def include = scan(includeRE, Include(_))
+  def include = scan1(includeRE, Include(_))
 
   private val caseRE = """^case +([^\n]+)""".r
 
-  def _case = scan(caseRE, Case(_))
+  def _case = scan1(caseRE, Case(_))
 
   private val whenRE = """^when +([^:\n]+)""".r
 
-  def when = scan(whenRE, When(_))
+  def when = scan1(whenRE, When(_))
 
   private val defaultRE = """^default *""".r
 
-  def default = scan(defaultRE, _ => Default)
+  def default = scan0(defaultRE, Default)
 
   private val assignmentRE = """^(\w+) += *([^;\n]+)( *;? *)""".r
 
@@ -310,7 +318,7 @@ class Lexer(var input: String) {
 
   private val whileRE = """^while +([^\n]+)""".r
 
-  def _while = scan(whileRE, exp => Code("while(" + exp + ")"))
+  def _while = scan1(whileRE, exp => Code("while(" + exp + ")"))
 
   private val eachRE = """^(?:- *)?(?:each|for) +(\w+) +in +([^\n]+)""".r
 
@@ -326,7 +334,7 @@ class Lexer(var input: String) {
 
   private val attrValue = """'[^'\n]+'|"[^"\n]+"|[\w_$]+"""
 
-  private val attr = """(""" + attrName + """)""" + """(?:[ \t]*(=!?)[ \t]*(""" + attrValue + """))?"""
+  private val attr = """(""" + attrName + """)""" + """(?:[ \t]*(!?=)[ \t]*(""" + attrValue + """))?"""
 
   private val attrsRE = ("""(?m)^\([ \t]*(?:""" + attr + """[ \t]*,?[ \t]*\n?[ \t]*)*\)""").r
 
@@ -404,7 +412,7 @@ class Lexer(var input: String) {
 
   private var colonRE = """^: *""".r
 
-  def colon = scan(colonRE, _ => Colon)
+  def colon = scan0(colonRE, Colon)
 
   def pipelessText = {
     if (pipeless) {

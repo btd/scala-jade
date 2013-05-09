@@ -29,19 +29,25 @@ class Compiler(nodes: Seq[Node]) {
         if (buffered) {
           buf(value); nl //TODO escape
         } else {
-          builder ++= (value + "\n")
+          builder ++= (value + blockOpt.map(_ => " {\n").getOrElse("\n"))
           for {
             block <- blockOpt
             n <- block
           } {
             visit(n)
           }
+          builder ++= (blockOpt.map(_ => "}\n").getOrElse("\n"))
         }
 
       case Tag(name, attributes, block, selfClose, textOnly, codeOpt, buffered) =>
         val tagName = (if (buffered) i(" + (name) + ") else q(name))
         val attrs = attributes.map { attr =>
-          q(attr._1) + attr._2.map(a => q("=") + (if (isQuoted(a.value)) i(attrInterpolated(a.value)) else qi(a.value))).getOrElse(nothing)
+          attr._2.map { a =>
+            if (isQuoted(a.value))
+              q(attr._1) + q("=") + i(attrInterpolated(a.value))
+            else
+              i("falsy(" + a.value + ").map(v => " + (q(attr._1) + q("=") + qi("v")) + ").getOrElse(\"\")")
+          }.getOrElse(q(attr._1))
         } //TODO escape
 
         buf(q("<") + tagName + (if (!attrs.isEmpty) space + i(attrs.reduce(_ + space + _)) else nothing) + (if (selfClose) "/>" else ">")); nl
@@ -60,18 +66,38 @@ class Compiler(nodes: Seq[Node]) {
           buf(q("</") + tagName + ">"); nl
         }
 
-      case Text(value) => buf(quote(value)); nl
+      case Text(value) => buf(textInterpolated(value)); nl
+
+      case Case(value, block) =>
+        builder ++= ("(" + value + ") match {"); nl
+        for (node <- block) visit(node)
+        builder ++= ("}"); nl
+
+      case When(value, block) =>
+        builder ++= ("case " + (if (value == "default") "_" else value) + " => {"); nl
+        for (node <- block) visit(node)
+        builder ++= ("}"); nl
 
       case Empty => //ignore it
     }
   }
 
-  val attrInterpolationRE = """(\\?)#\{([\w_-]+)\}""".r
+  val interpolationRE = """(\\?)#\{([\w_-]+)\}""".r
 
   def attrInterpolated(attr: String) = {
-    tQuote(attrInterpolationRE.replaceAllIn(attr, m => {
+    tQuote(interpolationRE.replaceAllIn(attr, m => {
       if (m.group(1) != "\\") {
         "\"\"\" + " + m.group(2) + " + \"\"\""
+      } else {
+        "#{" + m.group(2) + "}"
+      }
+    }))
+  }
+
+  def textInterpolated(text: String) = {
+    quote(interpolationRE.replaceAllIn(text, m => {
+      if (m.group(1) != "\\") {
+        "\" + " + m.group(2) + " + \""
       } else {
         "#{" + m.group(2) + "}"
       }
@@ -113,14 +139,12 @@ class Compiler(nodes: Seq[Node]) {
   }
 }
 
-/*
-def print(args...,writer: java.io.Writer) = {
-	writer.write()
+trait Template {
+  def falsy(any: Any): Option[String] = any match {
+    case null => None
+    case None => None
+    case c: collection.GenTraversable[_] if c.isEmpty => None
+    case Array() => None
+    case other => Some(other.toString)
+  }
 }
-def print(args...) = {
-	val writer = new java.io.StringWriter
-	print(args..., writer)
-	writer.flush
-	writer.toString
-}
-*/ 

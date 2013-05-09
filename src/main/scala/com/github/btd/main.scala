@@ -26,7 +26,31 @@ object GenTests extends App {
 
     val writer = new PrintWriter(new BufferedWriter(new FileWriter(new File(testOutDir, test + ".scala"))))
 
-    writer.write(compiler.compile)
+    val objName = test.replaceAll(".jade", ".html").replaceAll("\\.|-", "_")
+
+    writer.write {
+      s"""
+package com.github.btd.jade.cases
+
+import org.specs2.mutable._
+
+class ${test.replaceAll("\\.|-", "_")}Spec extends Specification {
+  "$test" should {
+
+    object ${objName} extends Template {
+      def apply() = {
+        ${compiler.compile}
+      }
+    }
+
+    "be equal expected html" in {
+      val testCaseHtml = io.Source.fromFile(new java.io.File("$testCasesJadeDir", "${test.replaceAll(".jade", ".html")}")).getLines.mkString("")
+      ${objName}() === testCaseHtml
+    }
+  }
+}
+    """
+    }
 
     writer.flush
     writer.close
