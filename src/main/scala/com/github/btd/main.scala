@@ -2,9 +2,9 @@ package com.github.btd.jade
 
 import java.io._
 
-/*object Main extends App {
+object Main extends App {
   println(new com.github.btd.jade.Parser(io.Source.fromFile(new java.io.File("test.jade")).getLines.mkString("\n"), "test.jade").parse)
-}*/
+}
 
 object GenTests extends App {
   val testCasesJadeDir = "./jade/test/cases"
