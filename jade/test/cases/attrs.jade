@@ -2,7 +2,8 @@ a(href='/contact') contact
 a(href='/save').button save
 a(foo, bar, baz)
 a(foo='foo, bar, baz', bar=1)
-a(foo='((foo))', bar= (1) ? 1 : 0 )
+bar = if(true) "1" else "0"
+a(foo='((foo))', bar= bar )
 select
   option(value='foo', selected) Foo
   option(selected, value='bar') Bar
