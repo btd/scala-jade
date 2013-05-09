@@ -39,7 +39,7 @@ class LexerSpec extends Specification {
 
     "find attributes" in {
       val lexer = new Lexer("""(attr1='value/#{something}'
-        attr2!="Value" attr3  attr4  = var )""")
+        attr2=!"Value" attr3  attr4  = var )""")
 
       lexer.attrs === Some(Attrs(Seq(
         ("attr1", Some("'value/#{something}'"), true),
