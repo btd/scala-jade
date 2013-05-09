@@ -169,7 +169,7 @@ class Parser(var input: String, filename: String) {
 
         case Tokens.Attrs(values, selfClose) =>
           advance()
-          //TODO process interpolation
+
           val attrs = values.map(t => t._1 -> t._2.map(attrValue => AttributeValue(attrValue, t._3))).toMap
           tag = tag.copy(selfClose = selfClose, attributes = tag.attributes ++ attrs)
 
@@ -199,12 +199,24 @@ class Parser(var input: String, filename: String) {
       case Tokens.Indent(_) | Tokens.NewLine | Tokens.Outdent | Tokens.Eos => //do nothing to process a bit later
     }
 
-    tag = tag.copy(textOnly = tag.textOnly || Jade.textOnlyTags.contains(tag.name))
+    for {
+      textTag <- Jade.textOnlyTags
+      if textTag._1 == tag.name
+    } {
+      if (textTag._2.isDefined)
+        for {
+          attr <- textTag._2
+          tagAttrOpt <- tag.attributes.get(attr._1)
+          tagAttr <- tagAttrOpt
+          if tagAttr.value == attr._2
+        } tag = tag.copy(textOnly = true)
+      else
+        tag = tag.copy(textOnly = true)
+    }
 
     println("Filled tag: " + tag)
 
     while (peek() == Tokens.NewLine) advance()
-    //TODO script ?
 
     peek() match {
       case Tokens.Indent(indent) =>

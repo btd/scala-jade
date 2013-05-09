@@ -3,7 +3,7 @@ package com.github.btd.jade
 object Jade {
   val inlineTags = Set("a", "abbr", "acronym", "b", "br", "code", "em", "font", "i", "img", "ins", "kbd", "map", "samp", "small", "span", "strong", "sub", "sup")
 
-  val textOnlyTags = Set("script", "style")
+  var textOnlyTags = Set("style" -> None, "script" -> Some("type" -> "text/javascript"))
 
   var getInput: String => (String, String) = blockName => ("test.jade", "")
 
