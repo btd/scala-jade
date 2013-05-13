@@ -1,31 +1,31 @@
 
-- var items = [1,2,3]
+- var items = 1 :: 2 :: 3 :: Nil
 
 ul
-  - items.forEach(function(item){
+  - items.foreach(item =>
     li= item
-  - })
+  - )
 
-items = [1,2,3]
+items2 = 1 :: 2 :: 3 :: Nil
 
 ul
-  for item, i in items
+  for (item, i) in items2.zipWithIndex
     li(class='item-#{i}')= item
 
 ul
-  each item, i in items
+  each item in items2
     li= item
 
-nums = [1, 2, 3]
-letters = ['a', 'b', 'c']
+nums = 1 to 3
+letters = "a" :: "b" :: "c" :: Nil
 
 ul
   for l in letters
     for n in nums
       li #{n}: #{l}
 
-count = 1
-counter = function() { return [count++, count++, count++] }
+count = 0
+counter = () => (1 to 3).map(_ + count)
 ul
   for n in counter()
     li #{n}

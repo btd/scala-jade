@@ -3,14 +3,16 @@ package com.github.btd.jade.cases
 
 import org.specs2.mutable._
 
-class basic_jadeSpec extends Specification {
-  "basic.jade" should {
+class doctype_default_jadeSpec extends Specification {
+  "doctype.default.jade" should {
 
-    object basic_html {
+    object doctype_default_html {
       import com.github.btd.jade.Template._
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
+        builder ++= ("""<!DOCTYPE html>""")
+        builder ++= ("\n")
         builder ++= ("")
         builder ++= ("<" + "html" + "" + ">")
         builder ++= ("\n")
@@ -34,8 +36,8 @@ class basic_jadeSpec extends Specification {
     }
 
     "be equal expected html" in {
-      val testCaseHtml = io.Source.fromFile(new java.io.File("./jade/test/cases", "basic.html")).getLines.mkString("\n")
-      basic_html() === testCaseHtml
+      val testCaseHtml = io.Source.fromFile(new java.io.File("./jade/test/cases", "doctype.default.html")).getLines.mkString("\n")
+      doctype_default_html() === testCaseHtml
     }
   }
 }

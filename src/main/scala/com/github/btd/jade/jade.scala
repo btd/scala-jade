@@ -9,14 +9,14 @@ object Jade {
 
   //TODO separate filters and transformers
   val filters: Map[String, String => String] = Map(
-    "cdata" -> (str => "<![CDATA[\n" + str + "\n]]>"),
+    "cdata" -> (str => "\"<![CDATA[\\n\" + " + str + "+ \"\\n]]>\""),
     "js" -> (str => "<script type='text/javascript'>\n" + str + "</script>"),
     "css" -> (str => "<style type='text/css'>\n" + str + "</style>")
   )
 
   var fileExt = ".jade"
 
-  val doctypes: Map[String, String] = Map(
+  val doctypes = Map(
     "5" -> """<!DOCTYPE html>""",
     "xml" -> """<?xml version="1.0" encoding="utf-8" ?>""",
     "transitional" -> """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">""",
@@ -27,6 +27,12 @@ object Jade {
     "mobile" -> """<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">"""
   )
 
+  val selfCloseTags = Set("meta", "img", "link", "input", "source", "area", "base", "col", "br", "hr")
+
   var defaultDoctype = "5"
+
+  var tab = "  "
+
+  var quote = "'"
 
 }

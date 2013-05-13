@@ -3,7 +3,9 @@ package com.github.btd.jade
 import java.io._
 
 object Main extends App {
-  println(new com.github.btd.jade.Parser(io.Source.fromFile(new java.io.File("test.jade")).getLines.mkString("\n"), "test.jade").parse)
+  val tokens = new com.github.btd.jade.Parser(io.Source.fromFile(new java.io.File("test.jade")).getLines.mkString("\n")).parse
+  println(tokens)
+  println(new Compiler(tokens, true).compile)
 }
 
 object GenTests extends App {
@@ -14,15 +16,19 @@ object GenTests extends App {
   outdir.mkdirs
 
   val dir = new java.io.File(testCasesJadeDir)
+  val N = 26
+  var i = 0
   for {
     test <- dir.list
-    if test.endsWith(Jade.fileExt)
+    if test.endsWith(Jade.fileExt) && i < N
   } {
+    i += 1
+    println(">>>>>>>>>>>>>>>>> " + test.toUpperCase)
     val testCase = io.Source.fromFile(new java.io.File(testCasesJadeDir, test)).getLines.mkString("\n")
 
-    val parser = new Parser(testCase, test)
+    val parser = new Parser(testCase)
 
-    val compiler = new Compiler(parser.parse)
+    val compiler = new Compiler(parser.parse, true)
 
     val writer = new PrintWriter(new BufferedWriter(new FileWriter(new File(testOutDir, test + ".scala"))))
 
@@ -37,14 +43,16 @@ import org.specs2.mutable._
 class ${test.replaceAll("\\.|-", "_")}Spec extends Specification {
   "$test" should {
 
-    object ${objName} extends Template {
+    object ${objName} {
+      import com.github.btd.jade.Template._
+
       def apply() = {
         ${compiler.compile}
       }
     }
 
     "be equal expected html" in {
-      val testCaseHtml = io.Source.fromFile(new java.io.File("$testCasesJadeDir", "${test.replaceAll(".jade", ".html")}")).getLines.mkString("")
+      val testCaseHtml = io.Source.fromFile(new java.io.File("$testCasesJadeDir", "${test.replaceAll(".jade", ".html")}")).getLines.mkString("\\n")
       ${objName}() === testCaseHtml
     }
   }

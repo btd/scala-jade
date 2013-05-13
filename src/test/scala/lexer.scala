@@ -9,13 +9,6 @@ class LexerSpec extends Specification {
   //args(skipAll = true)
 
   "Lexer" should {
-    "find interpolation expression" in {
-      val lexer1 = new Lexer("#{there can be anything {}}")
-      lexer1.interpolation === Some(Interpolation("there can be anything {}"))
-
-      val lexer2 = new Lexer("#{there can be anything but not\n {}")
-      lexer2.interpolation === None
-    }
     "find comments" in {
       val lexer1 = new Lexer("   //buffered comment")
       lexer1.comment === Some(Comment("buffered comment", true))

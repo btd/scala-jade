@@ -6,42 +6,56 @@ import org.specs2.mutable._
 class case_jadeSpec extends Specification {
   "case.jade" should {
 
-    object case_html extends Template {
+    object case_html {
+      import com.github.btd.jade.Template._
+
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("<" + "html" + "" + ">")
-builder ++= ("<" + "body" + "" + ">")
-val friends = (1)
+        builder ++= ("")
+        builder ++= ("<" + "html" + "" + ">")
+        builder ++= ("\n")
+        builder ++= ("  ")
+        builder ++= ("<" + "body" + "" + ">")
+        val friends = (1)
 
-(friends) match {
-case 0 => {
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("you have no friends")
-builder ++= ("</" + "p" + ">")
-}
-case 1 => {
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("you have a friend")
-builder ++= ("</" + "p" + ">")
-}
-case _ => {
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("you have " + friends + " friends")
-builder ++= ("</" + "p" + ">")
-}
-}
-builder ++= ("</" + "body" + ">")
-builder ++= ("</" + "html" + ">")
+        (friends) match {
+          case 0 => {
+            builder ++= ("\n")
+            builder ++= ("    ")
+            builder ++= ("<" + "p" + "" + ">")
+            builder ++= ("""you have no friends""")
+            builder ++= ("</" + "p" + ">")
+          }
+          case 1 => {
+            builder ++= ("\n")
+            builder ++= ("    ")
+            builder ++= ("<" + "p" + "" + ">")
+            builder ++= ("""you have a friend""")
+            builder ++= ("</" + "p" + ">")
+          }
+          case _ => {
+            builder ++= ("\n")
+            builder ++= ("    ")
+            builder ++= ("<" + "p" + "" + ">")
+            builder ++= ("""you have """ + escape((friends).toString) + """ friends""")
+            builder ++= ("</" + "p" + ">")
+          }
+        }
+        builder ++= ("\n")
+        builder ++= ("  ")
+        builder ++= ("</" + "body" + ">")
+        builder ++= ("\n")
+        builder ++= ("")
+        builder ++= ("</" + "html" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
 
     "be equal expected html" in {
-      val testCaseHtml = io.Source.fromFile(new java.io.File("./jade/test/cases", "case.html")).getLines.mkString("")
+      val testCaseHtml = io.Source.fromFile(new java.io.File("./jade/test/cases", "case.html")).getLines.mkString("\n")
       case_html() === testCaseHtml
     }
   }
 }
-    

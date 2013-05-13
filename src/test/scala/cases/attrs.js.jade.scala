@@ -6,31 +6,33 @@ import org.specs2.mutable._
 class attrs_js_jadeSpec extends Specification {
   "attrs.js.jade" should {
 
-    object attrs_js_html extends Template {
+    object attrs_js_html {
+      import com.github.btd.jade.Template._
+
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-var id = 5
+        var id = 5
 
-def answer() = 42
+        def answer() = 42
 
-builder ++= ("<" + "a" + " " + "href" + "=" + """'/user/""" + 42 + """'""" + " " + "class" + "=" + """'button'""" + ">")
-builder ++= ("</" + "a" + ">")
-builder ++= ("<" + "a" + " " + "href" + "=" + """'/user/""" + id + """'""" + " " + "class" + "=" + """'button'""" + ">")
-builder ++= ("</" + "a" + ">")
-val a = answer()
+        builder ++= ("<" + "a" + " " + "href" + "=" + """'/user/""" + escape((42).toString) + """'""" + " " + "class" + "=" + """'button'""" + ">")
+        builder ++= ("</" + "a" + ">")
+        builder ++= ("<" + "a" + " " + "href" + "=" + """'/user/""" + escape((id).toString) + """'""" + " " + "class" + "=" + """'button'""" + ">")
+        builder ++= ("</" + "a" + ">")
+        val a = answer()
 
-builder ++= ("<" + "meta" + " " + "key" + "=" + """'answer'""" + " " + falsy(a).map(v => "value" + "=" + "'" + v + "'").getOrElse("") + ">")
-builder ++= ("</" + "meta" + ">")
+        builder ++= ("\n")
+        builder ++= ("")
+        builder ++= ("<" + "meta" + " " + "key" + "=" + """'answer'""" + falsy(a).map(v => " " + "value" + "=" + "'" + escape(v) + "'").getOrElse("") + "/>")
 
-builder.toString
+        builder.toString
 
       }
     }
 
     "be equal expected html" in {
-      val testCaseHtml = io.Source.fromFile(new java.io.File("./jade/test/cases", "attrs.js.html")).getLines.mkString("")
+      val testCaseHtml = io.Source.fromFile(new java.io.File("./jade/test/cases", "attrs.js.html")).getLines.mkString("\n")
       attrs_js_html() === testCaseHtml
     }
   }
 }
-    

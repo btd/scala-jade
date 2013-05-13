@@ -194,7 +194,7 @@ class Lexer(var input: String) {
 
   private val interpolationRE = """^#\{([^\n]*)\}""".r
 
-  def interpolation = scan1(interpolationRE, Interpolation(_))
+  def interpolation = None //scan1(interpolationRE, Interpolation(_))
 
   private val tagRE = """^(\w[-:\w]*)(\/?)?""".r
 
@@ -310,7 +310,7 @@ class Lexer(var input: String) {
   def conditional = scan2(conditionalRE, (t, code) => {
     Code(t match {
       case "if" => "if(" + code + ")"
-      case "unless" => "if(!(" + code + ")"
+      case "unless" => "if(!(" + code + "))"
       case "else if" => "else if(" + code + ")"
       case "else" => "else"
     })
@@ -320,7 +320,7 @@ class Lexer(var input: String) {
 
   def _while = scan1(whileRE, exp => Code("while(" + exp + ")"))
 
-  private val eachRE = """^(?:- *)?(?:each|for) +(\w+) +in +([^\n]+)""".r
+  private val eachRE = """^(?:- *)?(?:each|for) +([\w, \(\)_]+) +in +([^\n]+)""".r
 
   def each = scan2(eachRE, (key, collection) => Each(key, collection))
 
@@ -332,7 +332,7 @@ class Lexer(var input: String) {
 
   private val attrName = """[\w-_]+"""
 
-  private val attrValue = """'[^'\n]+'|"[^"\n]+"|[\w_$]+"""
+  private val attrValue = """'[^'\n]*'|"[^"\n]*"|[\w_$]+"""
 
   private val attr = """(""" + attrName + """)""" + """(?:[ \t]*(!?=)[ \t]*(""" + attrValue + """))?"""
 

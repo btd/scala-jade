@@ -2,106 +2,174 @@ package com.github.btd.jade
 
 import nodes._
 
-class Compiler(nodes: Seq[Node]) {
+class Compiler(nodes: Seq[Node], prettyPrint: Boolean = false) {
   implicit def es2s(es: EvalString) = es.str
 
-  var prettyPrint = false
+  var firstLine = true
 
   val builder = new collection.mutable.StringBuilder
 
   builder ++= "val builder = new collection.mutable.StringBuilder\n"
 
   def compile() = {
-    for (node <- nodes)
-      visit(node)
+    visitBlock(nodes, -1)
 
     builder += '\n'
     builder ++= "builder.toString\n"
     builder.toString
   }
 
-  def visit(node: Node) {
+  def visit(node: Node, indentLevel: Int = 0) {
+
     node match {
       case Doctype(value) =>
-        buf(Jade.doctypes(empty(value).getOrElse(Jade.defaultDoctype))); nl
+        buf(tQuote(Jade.doctypes(empty(value).getOrElse(Jade.defaultDoctype))))
+      //indent(0, true)
 
       case Code(value, escaped, buffered, blockOpt) =>
         if (buffered) {
-          buf(value); nl //TODO escape
+          val newValue = "falsy(" + value + ").map(v => " + (if (escaped) "escape(v)" else "v") + ").getOrElse(\"\")"
+          buf(newValue)
         } else {
           builder ++= (value + blockOpt.map(_ => " {\n").getOrElse("\n"))
           for {
             block <- blockOpt
             n <- block
           } {
-            visit(n)
+            visit(n, indentLevel)
           }
           builder ++= (blockOpt.map(_ => "}\n").getOrElse("\n"))
         }
 
-      case Tag(name, attributes, block, selfClose, textOnly, codeOpt, buffered) =>
+      case t @ Tag(name, attributes, block, code, selfClose, buffered) =>
         val tagName = (if (buffered) i(" + (name) + ") else q(name))
         val attrs = attributes.map { attr =>
           attr._2.map { a =>
             if (isQuoted(a.value))
-              q(attr._1) + q("=") + i(attrInterpolated(a.value))
+              space + q(attr._1) + q("=") + i(interpolated(a.value, a.escape))
             else
-              i("falsy(" + a.value + ").map(v => " + (q(attr._1) + q("=") + qi("v")) + ").getOrElse(\"\")")
-          }.getOrElse(q(attr._1))
-        } //TODO escape
-
-        buf(q("<") + tagName + (if (!attrs.isEmpty) space + i(attrs.reduce(_ + space + _)) else nothing) + (if (selfClose) "/>" else ">")); nl
-
-        if (!selfClose) {
-          if (codeOpt.isDefined) {
-            visit(codeOpt.get)
-          } else if (!block.isEmpty) {
-            for {
-              n <- block
-            } {
-              visit(n)
-            }
-          }
-          //close tag
-          buf(q("</") + tagName + ">"); nl
+              i("falsy(" + a.value + ").map(v => " + (space + q(attr._1) + q("=") + qi((if (a.escape) "escape(v)" else "v"))) + ").getOrElse(\"\")")
+          }.getOrElse(space + q(attr._1))
         }
 
-      case Text(value) => buf(textInterpolated(value)); nl
+        if (prettyPrint && !t.isInline) indent(indentLevel, true)
+
+        buf(q("<") + tagName + (if (!attrs.isEmpty) i(attrs.reduce(_ + _)) else nothing) + (if (selfClose) "/>" else ">"))
+
+        if (!selfClose) {
+          code.foreach(visit(_, indentLevel))
+          visitBlock(block, indentLevel)
+          if (prettyPrint && !t.isInline && !t.canInline) indent(indentLevel, true)
+          buf(q("</") + tagName + ">")
+        }
+
+      case t @ Text(value) =>
+        buf(textTokenValue(t))
 
       case Case(value, block) =>
-        builder ++= ("(" + value + ") match {"); nl
-        for (node <- block) visit(node)
-        builder ++= ("}"); nl
+        builder ++= ("(" + value + ") match {\n")
+        visitBlock(block, indentLevel - 1)
+        builder ++= ("}\n")
 
       case When(value, block) =>
-        builder ++= ("case " + (if (value == "default") "_" else value) + " => {"); nl
-        for (node <- block) visit(node)
-        builder ++= ("}"); nl
+        builder ++= ("case " + (if (value == "default") "_" else value) + " => {\n")
+        visitBlock(block, indentLevel - 1)
+        builder ++= ("}\n")
+
+      case Each(key, coll, block, alt) =>
+        alt match {
+          case Some(a) =>
+            val name = uniqueName
+            builder ++= ("val " + name + " = (" + coll + ")\n")
+            builder ++= ("if(!(" + name + ").isEmpty) {\n")
+            builder ++= ("for(" + key + " <- " + name + ") {\n")
+            visitBlock(block, indentLevel - 1)
+            builder ++= ("}\n")
+            builder ++= ("} else {\n")
+            visitBlock(a, indentLevel - 1)
+            builder ++= ("}\n")
+          case _ =>
+            builder ++= ("for(" + key + " <- " + coll + ") {\n")
+            visitBlock(block, indentLevel - 1)
+            builder ++= ("}\n")
+        }
+
+      case BlockComment(value, block, buffered) =>
+        if (buffered) {
+          val ieCond = value.startsWith("if ")
+          buf(quote("<!--" + (if (ieCond) "[" else "") + value + (if (ieCond) "]>" else "")))
+          visitBlock(block, indentLevel - 1)
+          buf(quote((if (ieCond) "<![endif]" else "") + "-->"))
+        }
+
+      case Comment(value, buffered) =>
+        if (buffered) {
+          if (prettyPrint) indent(indentLevel, true)
+          buf(quote("<!--" + value + "-->"))
+        }
+
+      case Filter(name, block) =>
+        buf(Jade.filters(name)(block.map(textTokenValue).mkString("\n")))
 
       case Empty => //ignore it
     }
   }
 
-  val interpolationRE = """(\\?)#\{([\w_-]+)\}""".r
+  var nameGen = -1
 
-  def attrInterpolated(attr: String) = {
-    tQuote(interpolationRE.replaceAllIn(attr, m => {
-      if (m.group(1) != "\\") {
-        "\"\"\" + " + m.group(2) + " + \"\"\""
-      } else {
-        "#{" + m.group(2) + "}"
-      }
-    }))
+  def uniqueName = {
+    nameGen += 1
+    "temp$$" + nameGen
   }
 
-  def textInterpolated(text: String) = {
-    quote(interpolationRE.replaceAllIn(text, m => {
-      if (m.group(1) != "\\") {
-        "\" + " + m.group(2) + " + \""
-      } else {
-        "#{" + m.group(2) + "}"
+  def textTokenValue(tok: Text) = interpolated(tok.value, false)
+
+  def visitBlock(nodes: Seq[Node], indentLevel: Int = 0) {
+    if (prettyPrint && nodes.size > 1 && Node.isText(nodes(0)) && Node.isText(nodes(1)))
+      indent(indentLevel + 1, true)
+
+    if (nodes.size > 1) {
+      for ((node, nodeNext) <- nodes.zip(nodes.tail)) {
+        if (prettyPrint && Node.isText(node) && Node.isText(nodeNext))
+          indent(indentLevel + 1)
+
+        visit(node, indentLevel + 1)
+
       }
-    }))
+    }
+    if (nodes.size >= 1) {
+      visit(nodes.last, indentLevel + 1)
+    }
+
+  }
+
+  val interpolationRE = """(\\?)#\{([\w_-]+)\}""".r
+
+  def interpolated(_text: String, textEscaped: Boolean = true) = {
+    import Template._
+
+    var q = ""
+    val text = (if (isQuoted(_text)) { q = _text(0).toString; _text.substring(1, _text.length - 1) } else _text)
+
+    val buffer = new collection.mutable.StringBuilder(_text.length)
+
+    def bufText(str: String) {
+      buffer ++= (if (textEscaped) escape(str) else str)
+    }
+
+    var lastEnd = 0
+    for (m <- interpolationRE.findAllMatchIn(text)) {
+      bufText(text.substring(lastEnd, m.start))
+      val in = m.group(2)
+      if (m.group(1) != "\\") {
+        buffer ++= tQuote(" + escape((" + in + ").toString) + ")
+      } else {
+        bufText("#{" + in + "}")
+      }
+      lastEnd = m.end
+    }
+    bufText(text.substring(lastEnd))
+    tQuote(q + buffer.toString + q)
   }
 
   val nothing = q("")
@@ -112,16 +180,22 @@ class Compiler(nodes: Seq[Node]) {
   def quote(str: String) = "\"" + str + "\"" // """to do not worry about " and ' inside quoted string """
 
   def buf(str: String) {
-    builder ++= ("builder ++= (" + str + ")")
+    builder ++= ("builder ++= (" + str + ")\n")
+    firstLine = false
   }
 
-  def nl {
-    builder ++= "\n"
+  def indent(offset: Int, newline: Boolean = false) = {
+    val tab = Jade.tab * offset
+    if (newline && !firstLine) buf(quote("\\n"))
+    buf(quote(tab))
   }
 
   def isQuoted(str: String) = (str.startsWith("\"") && str.endsWith("\"")) || (str.startsWith("'") && str.endsWith("'"))
 
-  def qi(s: String) = i("\"'\"") + i(s) + i("\"'\"")
+  def qi(s: String) = {
+    val quote = Jade.quote
+    i("\"" + quote + "\"") + i(s) + i("\"" + quote + "\"")
+  }
 
   //construct evaluated string
   def q(s: String) = new EvalString(quote(s))
@@ -139,12 +213,30 @@ class Compiler(nodes: Seq[Node]) {
   }
 }
 
-trait Template {
+object Template {
   def falsy(any: Any): Option[String] = any match {
     case null => None
     case None => None
     case c: collection.GenTraversable[_] if c.isEmpty => None
     case Array() => None
     case other => Some(other.toString)
+  }
+
+  def charReplacement(c: Char) = c match {
+    case '<' => "&lt;"
+    case '>' => "&gt;"
+    case '&' => "&amp;"
+    //case '/' => "&#47;"
+    case '\'' => "&#39;"
+    case '"' => "&quot;"
+    case _ => c.toString
+  }
+
+  def escape(where: String) = {
+    var buffer = new collection.mutable.StringBuilder(where.length)
+    for (c <- where) {
+      buffer ++= charReplacement(c)
+    }
+    buffer.toString
   }
 }

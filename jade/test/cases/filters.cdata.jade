@@ -1,8 +1,11 @@
 
-users = [{ name: 'tobi', age: 2 }]
+- case class User(name: String, age: Int)
+users = User("tobi",  2 ) :: Nil
 
 fb:users
   for user in users
-    fb:user(age=user.age)
+    age = user.age
+    fb:user(age=age)
+      name = user.name
       :cdata
-        #{user.name}
+        #{name}

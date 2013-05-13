@@ -2,7 +2,7 @@ package com.github.btd.jade
 
 import nodes._
 
-class Parser(var input: String, filename: String) {
+class Parser(var input: String) {
   val lexer = new Lexer(input)
 
   var contexts = this :: Nil
@@ -122,7 +122,7 @@ class Parser(var input: String, filename: String) {
       case Class(name) =>
         advance()
         lexer.defer(Tag("div", false))
-        lexer.defer(Id(name))
+        lexer.defer(Class(name))
         parseExpr()
 
       case Eos => Empty
@@ -139,16 +139,21 @@ class Parser(var input: String, filename: String) {
     tag(Tag(name = name, selfClose = close))
   }
 
-  def quote(str: String, quote: String = "'") = quote + str + quote
+  def quote(str: String) = {
+    val quote = Jade.quote
+    quote + str + quote
+  }
 
   def unquote(str: String) = {
-    if (str.startsWith("'") && str.endsWith("'") || str.startsWith("\"") && str.endsWith("\""))
+    if ((str.startsWith("'") && str.endsWith("'")) || (str.startsWith("\"") && str.endsWith("\"")))
       str.substring(1, str.length - 1)
     else str
   }
 
   def tag(_tag: Tag) = {
     var tag = _tag
+
+    var textOnly = false
 
     println("Fill tag: " + tag)
     var tagTok = true
@@ -179,7 +184,7 @@ class Parser(var input: String, filename: String) {
       }
 
     if (peek().value == ".") {
-      tag = tag.copy(textOnly = true)
+      textOnly = true
       advance()
     }
 
@@ -203,16 +208,20 @@ class Parser(var input: String, filename: String) {
       textTag <- Jade.textOnlyTags
       if textTag._1 == tag.name
     } {
+      println("There is such text only tag")
       if (textTag._2.isDefined)
         for {
           attr <- textTag._2
-          tagAttrOpt <- tag.attributes.get(attr._1)
-          tagAttr <- tagAttrOpt
-          if tagAttr.value == attr._2
-        } tag = tag.copy(textOnly = true)
+          tagAttr <- tag.attributes.get(attr._1).flatMap(v => v.map(_.value))
+          if unquote(tagAttr) == attr._2
+        } textOnly = true
       else
-        tag = tag.copy(textOnly = true)
+        textOnly = true
     }
+
+    println("Text only: " + textOnly)
+
+    tag = tag.copy(selfClose = tag.selfClose || Jade.selfCloseTags.contains(tag.name))
 
     println("Filled tag: " + tag)
 
@@ -220,9 +229,9 @@ class Parser(var input: String, filename: String) {
 
     peek() match {
       case Tokens.Indent(indent) =>
-        if (tag.textOnly) {
+        if (textOnly) {
           lexer.pipeless = true
-          tag = tag.copy(block = parseTextBlock().nodes)
+          tag = tag.copy(block = parseTextBlock())
           lexer.pipeless = false
         } else {
           tag = tag.copy(block = tag.block ++: block())
@@ -304,7 +313,7 @@ class Parser(var input: String, filename: String) {
 
     //TODO How in filters can be attributes??? O_o
 
-    Filter(value, parseTextBlock().nodes)
+    Filter(value, parseTextBlock())
   }
 
   def parseEach(key: String, coll: String) = {
@@ -320,7 +329,7 @@ class Parser(var input: String, filename: String) {
 
   def parseExtends(value: String) = {
     val (input, filename) = Jade.getInput(value)
-    val parser = new Parser(input, filename)
+    val parser = new Parser(input)
     parser.blocks = this.blocks.reverse
     parser.contexts = this.contexts
 
@@ -345,7 +354,7 @@ class Parser(var input: String, filename: String) {
 
     if (value.endsWith(Jade.fileExt)) {
       val (input, filename) = Jade.getInput(value)
-      val parser = new Parser(input, filename)
+      val parser = new Parser(input)
       parser.blocks = this.blocks
       parser.mixins = this.mixins
 
@@ -397,8 +406,8 @@ class Parser(var input: String, filename: String) {
     node
   }
 
-  def parseTextBlock(): NodeSeq = {
-    var b = Seq[Node]()
+  def parseTextBlock(): Seq[Text] = {
+    var b = Seq[Text]()
 
     peek() match {
       case Tokens.Indent(spaces) =>
@@ -421,13 +430,13 @@ class Parser(var input: String, filename: String) {
         }
 
     }
-
-    NodeSeq(b)
+    b
   }
 
   def block(): NodeSeq = {
     var b = Seq[Node]()
     peek() match {
+      //case Tokens.NewLine => advance()
       case Tokens.Indent(_) =>
         advance()
 

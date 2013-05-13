@@ -6,17 +6,17 @@ import nodes._
 
 class CompilerSpec extends Specification {
 
-  val tpl = new Template {}
+  import Template._
 
   "Compiler" should {
     "recognize false values" in {
-      tpl.falsy(null) === None
-      tpl.falsy(Nil) === None
-      tpl.falsy(Seq()) === None
-      tpl.falsy(Seq("a")) !== None
-      tpl.falsy(Map("a" -> "a")) !== None
-      tpl.falsy(Some("a")) !== None
-      tpl.falsy(None) === None
+      falsy(null) === None
+      falsy(Nil) === None
+      falsy(Seq()) === None
+      falsy(Seq("a")) !== None
+      falsy(Map("a" -> "a")) !== None
+      falsy(Some("a")) !== None
+      falsy(None) === None
     }
   }
 }
