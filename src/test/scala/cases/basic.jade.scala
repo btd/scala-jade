@@ -11,24 +11,24 @@ class basic_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-        builder ++= ("")
-        builder ++= ("<" + "html" + "" + ">")
-        builder ++= ("\n")
-        builder ++= ("  ")
-        builder ++= ("<" + "body" + "" + ">")
-        builder ++= ("\n")
-        builder ++= ("    ")
-        builder ++= ("<" + "h1" + "" + ">")
-        builder ++= ("""Title""")
-        builder ++= ("</" + "h1" + ">")
-        builder ++= ("\n")
-        builder ++= ("  ")
-        builder ++= ("</" + "body" + ">")
-        builder ++= ("\n")
-        builder ++= ("")
-        builder ++= ("</" + "html" + ">")
+builder ++= ("")
+builder ++= ("<" + "html" + "" + ">")
+builder ++= ("\n")
+builder ++= ("  ")
+builder ++= ("<" + "body" + "" + ">")
+builder ++= ("\n")
+builder ++= ("    ")
+builder ++= ("<" + "h1" + "" + ">")
+builder ++= ("""Title""")
+builder ++= ("</" + "h1" + ">")
+builder ++= ("\n")
+builder ++= ("  ")
+builder ++= ("</" + "body" + ">")
+builder ++= ("\n")
+builder ++= ("")
+builder ++= ("</" + "html" + ">")
 
-        builder.toString
+builder.toString
 
       }
     }
@@ -39,3 +39,4 @@ class basic_jadeSpec extends Specification {
     }
   }
 }
+    

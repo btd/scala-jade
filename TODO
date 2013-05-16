@@ -1,5 +1,0 @@
-TODO
-
-1. escape: ', ", &, <, >, /
-2. logging
-3. input(checked=true, disabled=false) -> <input checked>

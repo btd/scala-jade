@@ -48,7 +48,7 @@ class Compiler(nodes: Seq[Node], prettyPrint: Boolean = false) {
             if (isQuoted(a.value))
               space + q(attr._1) + q("=") + i(interpolated(a.value, a.escape))
             else
-              i("falsy(" + a.value + ").map(v => " + (space + q(attr._1) + q("=") + qi((if (a.escape) "escape(v)" else "v"))) + ").getOrElse(\"\")")
+              i("boolAttr(" + a.value + ").map(v => if(v) {" + (space + q(attr._1)) + "} else \"\").getOrElse(falsy(" + a.value + ").map(v => " + (space + q(attr._1) + q("=") + qi((if (a.escape) "escape(v)" else "v"))) + ").getOrElse(\"\"))")
           }.getOrElse(space + q(attr._1))
         }
 
@@ -111,6 +111,9 @@ class Compiler(nodes: Seq[Node], prettyPrint: Boolean = false) {
       case Filter(name, block) =>
         buf(Jade.filters(name)(block.map(textTokenValue).mkString("\n")))
 
+      case NodeSeq(nodes) =>
+        visitBlock(nodes, indentLevel - 1)
+
       case Empty => //ignore it
     }
   }
@@ -125,20 +128,20 @@ class Compiler(nodes: Seq[Node], prettyPrint: Boolean = false) {
   def textTokenValue(tok: Text) = interpolated(tok.value, false)
 
   def visitBlock(nodes: Seq[Node], indentLevel: Int = 0) {
-    if (prettyPrint && nodes.size > 1 && Node.isText(nodes(0)) && Node.isText(nodes(1)))
+    val nodesCount = nodes.size
+
+    if (prettyPrint && nodesCount > 1 && Node.isText(nodes(0)) && Node.isText(nodes(1))) {
       indent(indentLevel + 1, true)
-
-    if (nodes.size > 1) {
-      for ((node, nodeNext) <- nodes.zip(nodes.tail)) {
-        if (prettyPrint && Node.isText(node) && Node.isText(nodeNext))
-          indent(indentLevel + 1)
-
-        visit(node, indentLevel + 1)
-
-      }
     }
-    if (nodes.size >= 1) {
-      visit(nodes.last, indentLevel + 1)
+
+    for (i <- 0 until nodesCount) {
+      if (prettyPrint && i > 0 && Node.isText(nodes(i - 1)) && Node.isText(nodes(i)))
+        indent(indentLevel + 1)
+
+      visit(nodes(i), indentLevel + 1)
+
+      if (prettyPrint && i + 1 < nodesCount && Node.isText(nodes(i)) && Node.isText(nodes(i + 1)))
+        indent(0, true)
     }
 
   }
@@ -220,6 +223,11 @@ object Template {
     case c: collection.GenTraversable[_] if c.isEmpty => None
     case Array() => None
     case other => Some(other.toString)
+  }
+
+  def boolAttr(any: Any): Option[Boolean] = any match {
+    case b: Boolean => Some(b)
+    case _ => None
   }
 
   def charReplacement(c: Char) = c match {

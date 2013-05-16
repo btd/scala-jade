@@ -1,8 +1,9 @@
 package com.github.btd.jade
 
+import com.typesafe.scalalogging.slf4j._
 import nodes._
 
-class Parser(var input: String) {
+class Parser(var input: String, filename: String) extends Logging {
   val lexer = new Lexer(input)
 
   var contexts = this :: Nil
@@ -11,7 +12,7 @@ class Parser(var input: String) {
 
   var mixins: List[Mixin] = Nil
 
-  var blocks: List[Node] = Nil //TODO List[List[Node]] ?
+  var parsedBlocks: List[Block] = Nil
 
   def context(parser: ?[Parser] = None) = {
     parser.map { p =>
@@ -21,7 +22,7 @@ class Parser(var input: String) {
   }
 
   def advance() = {
-    println("advance")
+    logger.debug(filename + "|> " + "advance")
     lexer.advance
   }
 
@@ -38,14 +39,12 @@ class Parser(var input: String) {
   def parse(): Seq[Node] = {
     import Tokens._
 
-    println("<<<<< PARSING >>>>>")
-
     var blocks = Seq[Node]()
 
     var next: Token = Eos
     do {
       next = peek()
-      println("Next: " + next)
+      logger.debug(filename + "|> " + "Next: " + next)
       if (next == NewLine) {
         advance()
       } else {
@@ -53,7 +52,8 @@ class Parser(var input: String) {
       }
     } while (next != Eos)
 
-    println("Find eos")
+    logger.debug(filename + "|> " + "Find eos")
+    logger.debug(filename + "|> " + "Blocks: " + parsedBlocks)
 
     extending.map { parser =>
       context(extending)
@@ -91,7 +91,20 @@ class Parser(var input: String) {
   },
   */
 
-  def handleBlocks() = {}
+  def handleBlocks() = {
+    var cache = new collection.mutable.HashMap[String, Block]()
+    for (b <- parsedBlocks.reverse) {
+      if (cache.contains(b.name)) {
+        b.mode match {
+          case "append" =>
+          case "prepend" =>
+          case _ => cache(b.name) = b
+        }
+      } else {
+        cache(b.name) = b
+      }
+    }
+  }
 
   def parseExpr(): Node = {
     import Tokens._
@@ -131,10 +144,9 @@ class Parser(var input: String) {
   }
 
   def parseTag(name: String, close: Boolean) = {
-    println(lexer.stashedTokens)
     advance()
 
-    println("parse tag")
+    logger.debug(filename + "|> " + "parse tag")
 
     tag(Tag(name = name, selfClose = close))
   }
@@ -155,7 +167,6 @@ class Parser(var input: String) {
 
     var textOnly = false
 
-    println("Fill tag: " + tag)
     var tagTok = true
     while (tagTok)
       peek() match {
@@ -169,7 +180,6 @@ class Parser(var input: String) {
             clazzVal <- tag.attributes.get("class")
             attrValue <- clazzVal
           } yield unquote(attrValue.value)).getOrElse("")
-          println("Class: " + classes)
           tag = tag.copy(attributes = tag.attributes + ("class" -> Some(AttributeValue(quote((classes + " " + name).trim)))))
 
         case Tokens.Attrs(values, selfClose) =>
@@ -179,7 +189,6 @@ class Parser(var input: String) {
           tag = tag.copy(selfClose = selfClose, attributes = tag.attributes ++ attrs)
 
         case other =>
-          println("parse tag: found " + other)
           tagTok = false
       }
 
@@ -187,8 +196,6 @@ class Parser(var input: String) {
       textOnly = true
       advance()
     }
-
-    println("Tag itself: " + tag)
 
     peek() match {
       case Tokens.Code(value, escaped, buffered) =>
@@ -208,7 +215,6 @@ class Parser(var input: String) {
       textTag <- Jade.textOnlyTags
       if textTag._1 == tag.name
     } {
-      println("There is such text only tag")
       if (textTag._2.isDefined)
         for {
           attr <- textTag._2
@@ -219,11 +225,9 @@ class Parser(var input: String) {
         textOnly = true
     }
 
-    println("Text only: " + textOnly)
-
     tag = tag.copy(selfClose = tag.selfClose || Jade.selfCloseTags.contains(tag.name))
 
-    println("Filled tag: " + tag)
+    logger.debug(filename + "|> " + "Filled tag: " + tag)
 
     while (peek() == Tokens.NewLine) advance()
 
@@ -243,7 +247,6 @@ class Parser(var input: String) {
   }
 
   def parseCode(value: String, escaped: Boolean, buffered: Boolean) = {
-    println("code1: " + lexer.stashedTokens)
     advance()
 
     var i = 1
@@ -254,7 +257,6 @@ class Parser(var input: String) {
         Some(block())
       case _ => None
     })
-    println("code2: " + lexer.stashedTokens)
     Code(value, escaped, buffered, blocks)
   }
 
@@ -295,15 +297,13 @@ class Parser(var input: String) {
     advance()
 
     peek() match {
-      case Tokens.Indent(_) => println("block comment"); BlockComment(value, block(), buffered)
-      case _ => println("simple comment"); Comment(value, buffered)
+      case Tokens.Indent(_) => BlockComment(value, block(), buffered)
+      case _ => Comment(value, buffered)
     }
   }
 
   def parseDoctype(value: String) = {
     advance()
-
-    println("Parse doctype")
 
     Doctype(value)
   }
@@ -327,10 +327,17 @@ class Parser(var input: String) {
     }))
   }
 
+  def fileName(path: String) = {
+    if (Path.isAbsolute(path)) path
+    else Path.join(Path.dirname(filename), path)
+  }
+
   def parseExtends(value: String) = {
-    val (input, filename) = Jade.getInput(value)
-    val parser = new Parser(input)
-    parser.blocks = this.blocks.reverse
+    advance()
+
+    val (filename, input) = Jade.getInput(fileName(value))
+    val parser = new Parser(input, filename)
+    parser.parsedBlocks = parsedBlocks.reverse
     parser.contexts = this.contexts
 
     this.extending = Some(parser)
@@ -341,25 +348,37 @@ class Parser(var input: String) {
   def parseBlock(value: String, mode: String) = {
     advance()
 
-    Block(value, mode, (peek() match {
+    logger.debug(filename + "|> " + "Parse block " + value + " mode " + mode)
+
+    val b = Block(value, mode, (peek() match {
       case Tokens.Indent(_) =>
         block()
       case _ =>
         Nil
     }))
+
+    parsedBlocks = parsedBlocks :+ b
+
+    b
   }
 
   def parseInclude(value: String) = {
     advance()
 
-    if (value.endsWith(Jade.fileExt)) {
-      val (input, filename) = Jade.getInput(value)
-      val parser = new Parser(input)
-      parser.blocks = this.blocks
+    val (filename, input) = Jade.getInput(fileName(value))
+
+    logger.debug(filename + "|> " + "Parse include: " + value + " founded " + filename)
+    logger.debug(filename + "|> " + "Content " + input)
+
+    if (filename.endsWith(Jade.fileExt)) {
+
+      val parser = new Parser(input, filename)
+      parser.parsedBlocks = parsedBlocks
       parser.mixins = this.mixins
 
       context(Some(parser))
       val ast = parser.parse()
+      logger.debug(filename + "|> " + "Parsed such ast: " + ast)
       context()
 
       peek() match {
@@ -369,8 +388,8 @@ class Parser(var input: String) {
       }
       NodeSeq(ast)
     } else {
-      val ext = value.substring(value.lastIndexOf(".") + 1)
-      Literal(Jade.filters.get(ext).map(_(Jade.getInput(value)._1)).getOrElse(value))
+      val ext = Path.extname(value)
+      Literal(Jade.filters.get(ext).map(_(Jade.getInput(fileName(value))._1)).getOrElse(value))
     }
   }
 
@@ -442,7 +461,6 @@ class Parser(var input: String) {
 
         var wasOutdent = false
         while (!wasOutdent) {
-          println("block: " + peek())
           peek() match {
             case Tokens.Outdent =>
               wasOutdent = true

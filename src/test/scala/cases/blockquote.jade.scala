@@ -11,23 +11,23 @@ class blockquote_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-        builder ++= ("")
-        builder ++= ("<" + "figure" + "" + ">")
-        builder ++= ("\n")
-        builder ++= ("  ")
-        builder ++= ("<" + "blockquote" + "" + ">")
-        builder ++= ("""Try to define yourself by what you do, and you&#8217;ll burnout every time. You are. That is enough. I rest in that.""")
-        builder ++= ("</" + "blockquote" + ">")
-        builder ++= ("\n")
-        builder ++= ("  ")
-        builder ++= ("<" + "figcaption" + "" + ">")
-        builder ++= ("""from @thefray at 1:43pm on May 10""")
-        builder ++= ("</" + "figcaption" + ">")
-        builder ++= ("\n")
-        builder ++= ("")
-        builder ++= ("</" + "figure" + ">")
+builder ++= ("")
+builder ++= ("<" + "figure" + "" + ">")
+builder ++= ("\n")
+builder ++= ("  ")
+builder ++= ("<" + "blockquote" + "" + ">")
+builder ++= ("""Try to define yourself by what you do, and you&#8217;ll burnout every time. You are. That is enough. I rest in that.""")
+builder ++= ("</" + "blockquote" + ">")
+builder ++= ("\n")
+builder ++= ("  ")
+builder ++= ("<" + "figcaption" + "" + ">")
+builder ++= ("""from @thefray at 1:43pm on May 10""")
+builder ++= ("</" + "figcaption" + ">")
+builder ++= ("\n")
+builder ++= ("")
+builder ++= ("</" + "figure" + ">")
 
-        builder.toString
+builder.toString
 
       }
     }
@@ -38,3 +38,4 @@ class blockquote_jadeSpec extends Specification {
     }
   }
 }
+    

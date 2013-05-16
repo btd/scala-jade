@@ -11,32 +11,32 @@ class block_expansion_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-        builder ++= ("")
-        builder ++= ("<" + "ul" + "" + ">")
-        builder ++= ("\n")
-        builder ++= ("  ")
-        builder ++= ("<" + "li" + "" + ">")
-        builder ++= ("<" + "a" + " " + "href" + "=" + """'#'""" + ">")
-        builder ++= ("""foo""")
-        builder ++= ("</" + "a" + ">")
-        builder ++= ("</" + "li" + ">")
-        builder ++= ("\n")
-        builder ++= ("  ")
-        builder ++= ("<" + "li" + "" + ">")
-        builder ++= ("<" + "a" + " " + "href" + "=" + """'#'""" + ">")
-        builder ++= ("""bar""")
-        builder ++= ("</" + "a" + ">")
-        builder ++= ("</" + "li" + ">")
-        builder ++= ("\n")
-        builder ++= ("")
-        builder ++= ("</" + "ul" + ">")
-        builder ++= ("\n")
-        builder ++= ("")
-        builder ++= ("<" + "p" + "" + ">")
-        builder ++= ("""baz""")
-        builder ++= ("</" + "p" + ">")
+builder ++= ("")
+builder ++= ("<" + "ul" + "" + ">")
+builder ++= ("\n")
+builder ++= ("  ")
+builder ++= ("<" + "li" + "" + ">")
+builder ++= ("<" + "a" + " " + "href" + "=" + """'#'""" + ">")
+builder ++= ("""foo""")
+builder ++= ("</" + "a" + ">")
+builder ++= ("</" + "li" + ">")
+builder ++= ("\n")
+builder ++= ("  ")
+builder ++= ("<" + "li" + "" + ">")
+builder ++= ("<" + "a" + " " + "href" + "=" + """'#'""" + ">")
+builder ++= ("""bar""")
+builder ++= ("</" + "a" + ">")
+builder ++= ("</" + "li" + ">")
+builder ++= ("\n")
+builder ++= ("")
+builder ++= ("</" + "ul" + ">")
+builder ++= ("\n")
+builder ++= ("")
+builder ++= ("<" + "p" + "" + ">")
+builder ++= ("""baz""")
+builder ++= ("</" + "p" + ">")
 
-        builder.toString
+builder.toString
 
       }
     }
@@ -47,3 +47,4 @@ class block_expansion_jadeSpec extends Specification {
     }
   }
 }
+    

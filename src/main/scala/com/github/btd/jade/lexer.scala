@@ -3,6 +3,7 @@ package com.github.btd.jade
 import java.io.Reader
 import util.matching.Regex
 import collection.mutable.Queue
+import com.typesafe.scalalogging.slf4j._
 
 object Tokens {
   trait Token {
@@ -78,7 +79,7 @@ object Tokens {
   }
 }
 
-class Lexer(var input: String) {
+class Lexer(var input: String) extends Logging {
   import Tokens._
 
   var pipeless: Boolean = false
@@ -93,9 +94,7 @@ class Lexer(var input: String) {
   var indentStack = List[String]()
 
   def consume(len: Int) {
-    //println("Before: " + input)
     input = input.substring(len)
-    println("After: " + input)
   }
 
   def defer(tok: Token) {
@@ -104,7 +103,7 @@ class Lexer(var input: String) {
 
   def lookahead(n: Int) = {
     val fetch = n - stashedTokens.size
-    println("lookahead " + fetch)
+    logger.debug("lookahead " + fetch)
     for (_ <- 1 to fetch; token <- nextToken) stashedTokens.enqueue(token)
     stashedTokens(n - 1)
   }
@@ -139,8 +138,8 @@ class Lexer(var input: String) {
   }
 
   def nextToken: Option[Token] = {
-    println("try to find next token: ")
-    println(input.split("\n").take(2).mkString("\n"))
+    logger.debug("try to find next token: ")
+    logger.debug(input.split("\n").take(2).mkString("\n"))
     deferred orElse
       blank orElse
       eos orElse
@@ -179,8 +178,6 @@ class Lexer(var input: String) {
   def blank = {
     blankLineRE.findFirstIn(input).flatMap { m =>
       consume(m.length - 1) // -1 because last \n should be in input
-
-      println("blank")
 
       lineno += 1
       if (pipeless) Some(Text())
@@ -271,7 +268,7 @@ class Lexer(var input: String) {
 
   private val blockRE = """^block\b\s*(?:(prepend|append)\s+)?([^\n]*)""".r
 
-  def block = scan2(blockRE, (mode, value) => Block(value, if (mode == "") "replace" else mode))
+  def block = scan2(blockRE, (mode, value) => Block(value, empty(mode).getOrElse("replace")))
 
   private val yieldRE = """^yield\s*""".r
 
@@ -377,22 +374,15 @@ class Lexer(var input: String) {
     indentRE.findPrefixMatchOf(input).map { m =>
       lineno += 1
 
-      //println("Indent input: " + input.map(c => if (c == '\n') "\\n" else c.toString))
-      println("Indent match: " + m.group(0).map(c => if (c == '\n') "\\n" else c.toString))
       consume(m.group(0).length)
 
       val i = m.group(1)
-
-      println("indent: <" + i + ">")
-
-      println(indentStack)
 
       if (input.length > 0 && input.charAt(0) == '\n') NewLine
       else {
         //outdent
         if (indentStack.headOption.map(_.length > i.length).getOrElse(false)) {
           while (indentStack.headOption.map(_.length > i.length).getOrElse(false)) {
-            println("one outdent")
             stashedTokens.enqueue(Outdent)
             indentStack = indentStack.tail
           }
@@ -401,7 +391,6 @@ class Lexer(var input: String) {
           // indent
         } else if (i != "" && indentStack.headOption.map(_.length < i.length).getOrElse(true)) {
           indentStack = i :: indentStack
-          println("indent")
           Indent(i)
         } else {
           NewLine
@@ -416,7 +405,6 @@ class Lexer(var input: String) {
 
   def pipelessText = {
     if (pipeless) {
-      println("PIPELESS")
       if (input.length > 0 && input.charAt(0) == '\n') None
       else {
         var i = input.indexOf('\n')
