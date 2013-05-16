@@ -12,7 +12,8 @@ class Parser(var input: String, filename: String) extends Logging {
 
   var mixins: List[Mixin] = Nil
 
-  var parsedBlocks: List[Block] = Nil
+  // evaluated block values
+  var parsedBlocks = Map[String, (String, Seq[Node])]()
 
   def context(parser: ?[Parser] = None) = {
     parser.map { p =>
@@ -39,6 +40,8 @@ class Parser(var input: String, filename: String) extends Logging {
   def parse(): Seq[Node] = {
     import Tokens._
 
+    logger.debug("Begin parsing file " + filename + " with such blocks " + parsedBlocks)
+
     var blocks = Seq[Node]()
 
     var next: Token = Eos
@@ -56,53 +59,17 @@ class Parser(var input: String, filename: String) extends Logging {
     logger.debug(filename + "|> " + "Blocks: " + parsedBlocks)
 
     extending.map { parser =>
+
+      parser.parsedBlocks = parsedBlocks
+
+      //this one is executing with thought that we already evaluate all blocks
       context(extending)
       val ast = mixins ++ parser.parse()
       context()
 
       ast
     } getOrElse {
-      handleBlocks()
       blocks
-    }
-  }
-
-  /*
-  handleBlocks: function() {
-    this.blocks.reverse();
-    var blocksHash = {}; // blockName: block object
-    for (var i in this.blocks) {
-      if (!( ({}).hasOwnProperty.call(blocksHash, [this.blocks[i].name]) )) { // just safe call to blocksHash.hasOwnProperty
-        blocksHash[this.blocks[i].name] = this.blocks[i];
-      } else {
-        switch (this.blocks[i].mode) {
-          case 'append':
-            blocksHash[this.blocks[i].name].nodes = blocksHash[this.blocks[i].name].nodes.concat(this.blocks[i].nodes);
-            break;
-          case 'prepend':
-            blocksHash[this.blocks[i].name].nodes = this.blocks[i].nodes.concat(blocksHash[this.blocks[i].name].nodes);
-            break;
-          default:
-            blocksHash[this.blocks[i].name].nodes = this.blocks[i].nodes;
-        }
-        this.blocks[i] = blocksHash[this.blocks[i].name];
-      }
-    }
-  },
-  */
-
-  def handleBlocks() = {
-    var cache = new collection.mutable.HashMap[String, Block]()
-    for (b <- parsedBlocks.reverse) {
-      if (cache.contains(b.name)) {
-        b.mode match {
-          case "append" =>
-          case "prepend" =>
-          case _ => cache(b.name) = b
-        }
-      } else {
-        cache(b.name) = b
-      }
     }
   }
 
@@ -126,7 +93,9 @@ class Parser(var input: String, filename: String) extends Logging {
       case Call(value, args) => parseCall(value, args)
       case Mixin(value, args) => parseMixin(value, args)
       case Interpolation(value) => parseInterpolation(value)
-      case Yield => nodes.Yield
+      case Yield =>
+        advance()
+        nodes.Yield
       case Id(name) =>
         advance()
         lexer.defer(Tag("div", false))
@@ -336,11 +305,7 @@ class Parser(var input: String, filename: String) extends Logging {
     advance()
 
     val (filename, input) = Jade.getInput(fileName(value))
-    val parser = new Parser(input, filename)
-    parser.parsedBlocks = parsedBlocks.reverse
-    parser.contexts = this.contexts
-
-    this.extending = Some(parser)
+    this.extending = Some(new Parser(input, filename))
 
     Empty
   }
@@ -350,16 +315,23 @@ class Parser(var input: String, filename: String) extends Logging {
 
     logger.debug(filename + "|> " + "Parse block " + value + " mode " + mode)
 
-    val b = Block(value, mode, (peek() match {
+    val nodes = peek() match {
       case Tokens.Indent(_) =>
         block()
       case _ =>
         Nil
-    }))
+    }
 
-    parsedBlocks = parsedBlocks :+ b
+    parsedBlocks = parsedBlocks + (value -> parsedBlocks.get(value).map { pb =>
+      logger.debug("Found previous block with this name: " + pb)
+      mode -> (pb._1 match {
+        case "append" => nodes ++ pb._2
+        case "prepend" => pb._2 ++ nodes
+        case "replace" => pb._2
+      })
+    }.getOrElse(mode -> nodes))
 
-    b
+    NodeSeq(parsedBlocks(value)._2)
   }
 
   def parseInclude(value: String) = {

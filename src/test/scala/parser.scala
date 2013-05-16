@@ -8,7 +8,7 @@ class ParserSpec extends Specification {
 
   "Parser" should {
     "parse tags" in {
-      val parser = new Parser("div.class1#id.class2(data-id = 'some' checked123) Text")
+      val parser = new Parser("div.class1#id.class2(data-id = 'some' checked123) Text", "test")
       parser.parse().filter(_ != Empty) === List(
         Tag("div",
           Map(
@@ -23,12 +23,12 @@ class ParserSpec extends Specification {
     }
 
     "parse block expansion without indentation" in {
-      val parser = new Parser("li: a(href='#') foo")
+      val parser = new Parser("li: a(href='#') foo", "test")
       parser.parse().filter(_ != Empty) === List(tok("li", Map(), tok("a", Map("href" -> "'#'"), Text("foo"))))
     }
 
     "parse block expansion with indentation" in {
-      val parser = new Parser("ul\n  li: a(href='#') foo")
+      val parser = new Parser("ul\n  li: a(href='#') foo", "test")
       parser.parse().filter(_ != Empty) === List(
         tok("ul", Map(), tok("li", Map(), tok("a", Map("href" -> "'#'"), Text("foo"))))
       )

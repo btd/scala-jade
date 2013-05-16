@@ -30,19 +30,18 @@ object GenTests extends App with Logging {
   val dir = new java.io.File(testCasesJadeDir)
 
   Jade.getInput = (name: String) => {
-    val lastSlash = name.lastIndexOf("/")
-    val fileName = name.substring(lastSlash + 1)
-    val subDirName = name.substring(0, lastSlash)
+    val fileName = Path.basename(name)
+    val subDirName = Path.dirname(name)
 
-    logger.debug("Try to find files in " + (testCasesJadeDir + subDirName) + " file name " + fileName)
-    new File(testCasesJadeDir + subDirName).list.filter(_.startsWith(fileName)).headOption.map(f => {
-      val ff = new File(testCasesJadeDir + subDirName, f)
+    val ext = empty(Path.extname(name)).getOrElse(Jade.fileExt)
 
-      (ff.getAbsolutePath, io.Source.fromFile(ff).getLines.mkString("\n"))
-    }).get
+    logger.debug("Get input " + name)
+    val path = if (Path.isAbsolute(name)) Path.join(testCasesJadeDir, subDirName, fileName + ext) else Path.join(subDirName, fileName + ext)
+    logger.debug("Try to find file " + path)
+    (Path.join(subDirName, fileName + ext), io.Source.fromFile(path).getLines.mkString("\n"))
   }
 
-  val N = 28
+  val N = 30
   var i = 0
   for {
     test <- dir.list
