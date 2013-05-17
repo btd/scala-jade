@@ -11,28 +11,28 @@ class include_only_text_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-        builder ++= ("")
-        builder ++= ("<" + "html" + "" + ">")
-        builder ++= ("\n")
-        builder ++= ("  ")
-        builder ++= ("<" + "body" + "" + ">")
-        builder ++= ("\n")
-        builder ++= ("    ")
-        builder ++= ("<" + "p" + "" + ">")
-        builder ++= ("""The message is """")
-        builder ++= ("<" + "em" + "" + ">")
-        builder ++= ("""hello world""")
-        builder ++= ("</" + "em" + ">")
-        builder ++= (""""""")
-        builder ++= ("</" + "p" + ">")
-        builder ++= ("\n")
-        builder ++= ("  ")
-        builder ++= ("</" + "body" + ">")
-        builder ++= ("\n")
-        builder ++= ("")
-        builder ++= ("</" + "html" + ">")
+builder ++= ("")
+builder ++= ("<" + "html" + "" + ">")
+builder ++= ("\n")
+builder ++= ("  ")
+builder ++= ("<" + "body" + "" + ">")
+builder ++= ("\n")
+builder ++= ("    ")
+builder ++= ("<" + "p" + "" + ">")
+builder ++= ("""The message is """")
+builder ++= ("<" + "em" + "" + ">")
+builder ++= ("""hello world""")
+builder ++= ("</" + "em" + ">")
+builder ++= (""""""")
+builder ++= ("</" + "p" + ">")
+builder ++= ("\n")
+builder ++= ("  ")
+builder ++= ("</" + "body" + ">")
+builder ++= ("\n")
+builder ++= ("")
+builder ++= ("</" + "html" + ">")
 
-        builder.toString
+builder.toString
 
       }
     }
@@ -43,3 +43,4 @@ class include_only_text_jadeSpec extends Specification {
     }
   }
 }
+    

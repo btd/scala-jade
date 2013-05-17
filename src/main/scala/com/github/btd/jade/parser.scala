@@ -50,10 +50,12 @@ class Parser(var input: String, filename: String) extends Logging {
 
     logger.debug(filename + "|> " + "Find eos")
     logger.debug(filename + "|> " + "Blocks: " + parsedBlocks)
+    logger.debug(filename + "|> " + "Mixins: " + mixins)
 
     extending.map { parser =>
 
       parser.parsedBlocks = parsedBlocks
+      parser.mixins = mixins
 
       //this one is executing with thought that we already evaluate all blocks
       val ast = mixins ++ parser.parse()
@@ -352,7 +354,8 @@ class Parser(var input: String, filename: String) extends Logging {
       NodeSeq(ast)
     } else {
       val ext = Path.extname(value)
-      Literal(Jade.filters.get(ext).map(_(Jade.getInput(fileName(value))._1)).getOrElse(value))
+      val (filename, input) = Jade.getInput(fileName(value))
+      Literal(Jade.filters(ext)(input))
     }
   }
 
@@ -365,8 +368,7 @@ class Parser(var input: String, filename: String) extends Logging {
 
     peek() match {
       case Tokens.Indent(indent) =>
-        val b = block()
-        node = node.copy(block = (if (b.isEmpty) None else Some(b)))
+        node = node.copy(block = block())
       case _ =>
     }
     node
@@ -379,10 +381,8 @@ class Parser(var input: String, filename: String) extends Logging {
 
     peek() match {
       case Tokens.Indent(indent) =>
-        val b = block()
-        node = node.copy(block = (if (b.isEmpty) None else Some(b)), call = false)
+        node = node.copy(block = block())
       case _ =>
-        node = node.copy(call = true)
     }
 
     node

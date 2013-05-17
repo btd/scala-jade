@@ -9,7 +9,7 @@ object Main extends App with Logging {
     val fileName = Path.basename(name)
     val subDirName = Path.dirname(name)
 
-    val ext = empty(Path.extname(name)).getOrElse(Jade.fileExt)
+    val ext = empty(Path.extname(name)).map("." + _).getOrElse(Jade.fileExt)
 
     logger.debug("Get input " + name)
     val path = if (Path.isAbsolute(name)) Path.join(testCasesJadeDir, subDirName, fileName + ext) else Path.join(subDirName, fileName + ext)
@@ -31,19 +31,20 @@ object GenTests extends App with Logging {
 
   val dir = new java.io.File(testCasesJadeDir)
 
-  Jade.getInput = (name: String) => {
-    val fileName = Path.basename(name)
-    val subDirName = Path.dirname(name)
-
-    val ext = empty(Path.extname(name)).getOrElse(Jade.fileExt)
-
-    logger.debug("Get input " + name)
-    val path = if (Path.isAbsolute(name)) Path.join(testCasesJadeDir, subDirName, fileName + ext) else Path.join(subDirName, fileName + ext)
-    logger.debug("Try to find file " + path)
-    (Path.join(subDirName, fileName + ext), io.Source.fromFile(path).getLines.mkString("\n"))
+  def tryFoundFileByName(name: String) = {
+    val path = if (Path.isAbsolute(name)) Path.join(testCasesJadeDir, name) else name
+    val file = new File(path)
+    if (!file.exists) None
+    else {
+      Some((name, io.Source.fromFile(file).getLines.mkString("\n")))
+    }
   }
 
-  val N = 35
+  Jade.getInput = (name: String) => {
+    tryFoundFileByName(name).orElse(tryFoundFileByName(name + Jade.fileExt)).getOrElse(throw new Exception(s"File $name not found"))
+  }
+
+  val N = 42
   var i = 0
   for {
     test <- dir.list

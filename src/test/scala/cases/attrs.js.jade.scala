@@ -11,21 +11,21 @@ class attrs_js_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-        var id = 5
+var id = 5
 
-        def answer() = 42
+def answer() = 42
 
-        builder ++= ("<" + "a" + " " + "href" + "=" + """'/user/""" + escape((42).toString) + """'""" + " " + "class" + "=" + """'button'""" + ">")
-        builder ++= ("</" + "a" + ">")
-        builder ++= ("<" + "a" + " " + "href" + "=" + """'/user/""" + escape((id).toString) + """'""" + " " + "class" + "=" + """'button'""" + ">")
-        builder ++= ("</" + "a" + ">")
-        val a = answer()
+builder ++= ("<" + "a" + " " + "href" + "=" + """'/user/""" + escape((42).toString) + """'""" + " " + "class" + "=" + """'button'""" + ">")
+builder ++= ("</" + "a" + ">")
+builder ++= ("<" + "a" + " " + "href" + "=" + """'/user/""" + escape((id).toString) + """'""" + " " + "class" + "=" + """'button'""" + ">")
+builder ++= ("</" + "a" + ">")
+val a = answer()
 
-        builder ++= ("\n")
-        builder ++= ("")
-        builder ++= ("<" + "meta" + " " + "key" + "=" + """'answer'""" + boolAttr(a).map(v => if (v) { " " + "value" } else "").getOrElse(falsy(a).map(v => " " + "value" + "=" + "'" + escape(v) + "'").getOrElse("")) + "/>")
+builder ++= ("\n")
+builder ++= ("")
+builder ++= ("<" + "meta" + " " + "key" + "=" + """'answer'""" + boolAttr(a).map(v => if(v) {" " + "value"} else "").getOrElse(falsy(a).map(v => " " + "value" + "=" + "'" + escape(v) + "'").getOrElse("")) + "/>")
 
-        builder.toString
+builder.toString
 
       }
     }
@@ -36,3 +36,4 @@ class attrs_js_jadeSpec extends Specification {
     }
   }
 }
+    

@@ -49,7 +49,7 @@ case class NodeSeq(nodes: Seq[Node]) extends Node with collection.SeqProxy[Node]
   val self = nodes
 }
 
-case class Mixin(name: String, args: Seq[String], call: Boolean = false, block: ?[Seq[Node]] = None) extends Node
+case class Mixin(name: String, args: Seq[String], call: Boolean = false, block: Seq[Node] = Seq()) extends Node
 
 case class Literal(value: String) extends Node
 

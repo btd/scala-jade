@@ -11,16 +11,16 @@ class classes_empty_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-        builder ++= ("<" + "a" + " " + "class" + "=" + """""""" + ">")
-        builder ++= ("</" + "a" + ">")
-        builder ++= ("<" + "a" + boolAttr(null).map(v => if (v) { " " + "class" } else "").getOrElse(falsy(null).map(v => " " + "class" + "=" + "'" + escape(v) + "'").getOrElse("")) + ">")
-        builder ++= ("</" + "a" + ">")
-        val n = (None)
+builder ++= ("<" + "a" + " " + "class" + "=" + """""""" + ">")
+builder ++= ("</" + "a" + ">")
+builder ++= ("<" + "a" + boolAttr(null).map(v => if(v) {" " + "class"} else "").getOrElse(falsy(null).map(v => " " + "class" + "=" + "'" + escape(v) + "'").getOrElse("")) + ">")
+builder ++= ("</" + "a" + ">")
+val n = (None)
 
-        builder ++= ("<" + "a" + boolAttr(n).map(v => if (v) { " " + "class" } else "").getOrElse(falsy(n).map(v => " " + "class" + "=" + "'" + escape(v) + "'").getOrElse("")) + ">")
-        builder ++= ("</" + "a" + ">")
+builder ++= ("<" + "a" + boolAttr(n).map(v => if(v) {" " + "class"} else "").getOrElse(falsy(n).map(v => " " + "class" + "=" + "'" + escape(v) + "'").getOrElse("")) + ">")
+builder ++= ("</" + "a" + ">")
 
-        builder.toString
+builder.toString
 
       }
     }
@@ -31,3 +31,4 @@ class classes_empty_jadeSpec extends Specification {
     }
   }
 }
+    

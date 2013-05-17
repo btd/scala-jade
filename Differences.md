@@ -6,3 +6,5 @@ Differences with javascript Jade
 	2. Yield with include is required and never used last block /include-with-text.jade and it replace all yields in included file
 
 	3. Case translated to scala case, default it it case _ => ...
+
+	4. Mixin call will happen only with +mixin_name(...)

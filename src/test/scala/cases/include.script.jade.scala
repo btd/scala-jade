@@ -11,29 +11,29 @@ class include_script_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-        builder ++= ("")
-        builder ++= ("<" + "script" + " " + "id" + "=" + """'pet-template'""" + " " + "type" + "=" + """'text/x-template'""" + ">")
-        builder ++= ("\n")
-        builder ++= ("  ")
-        builder ++= ("<" + "div" + " " + "class" + "=" + """'pet'""" + ">")
-        builder ++= ("\n")
-        builder ++= ("    ")
-        builder ++= ("<" + "h1" + "" + ">")
-        builder ++= ("""{{name}}""")
-        builder ++= ("</" + "h1" + ">")
-        builder ++= ("\n")
-        builder ++= ("    ")
-        builder ++= ("<" + "p" + "" + ">")
-        builder ++= ("""{{name}} is a {{species}} that is {{age}} old""")
-        builder ++= ("</" + "p" + ">")
-        builder ++= ("\n")
-        builder ++= ("  ")
-        builder ++= ("</" + "div" + ">")
-        builder ++= ("\n")
-        builder ++= ("")
-        builder ++= ("</" + "script" + ">")
+builder ++= ("")
+builder ++= ("<" + "script" + " " + "id" + "=" + """'pet-template'""" + " " + "type" + "=" + """'text/x-template'""" + ">")
+builder ++= ("\n")
+builder ++= ("  ")
+builder ++= ("<" + "div" + " " + "class" + "=" + """'pet'""" + ">")
+builder ++= ("\n")
+builder ++= ("    ")
+builder ++= ("<" + "h1" + "" + ">")
+builder ++= ("""{{name}}""")
+builder ++= ("</" + "h1" + ">")
+builder ++= ("\n")
+builder ++= ("    ")
+builder ++= ("<" + "p" + "" + ">")
+builder ++= ("""{{name}} is a {{species}} that is {{age}} old""")
+builder ++= ("</" + "p" + ">")
+builder ++= ("\n")
+builder ++= ("  ")
+builder ++= ("</" + "div" + ">")
+builder ++= ("\n")
+builder ++= ("")
+builder ++= ("</" + "script" + ">")
 
-        builder.toString
+builder.toString
 
       }
     }
@@ -44,3 +44,4 @@ class include_script_jadeSpec extends Specification {
     }
   }
 }
+    

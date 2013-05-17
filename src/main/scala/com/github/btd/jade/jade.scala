@@ -9,10 +9,10 @@ object Jade {
 
   //TODO separate filters and transformers
   val filters: Map[String, String => String] = Map(
-    "cdata" -> (str => "\"<![CDATA[\\n\" + " + str + "+ \"\\n]]>\""),
-    "js" -> (str => "<script type='text/javascript'>\n" + str + "</script>"),
-    "css" -> (str => "<style type='text/css'>\n" + str + "</style>")
-  )
+    "cdata" -> ((str: String) => "\"<![CDATA[\\n\" + " + str + "+ \"\\n]]>\""),
+    "js" -> ((str: String) => "\"<script type='text/javascript'>\\n\" + \"\"\"" + str + "\"\"\" + \"\\n</script>\""),
+    "css" -> ((str: String) => "\"<style type='text/css'>\\n\" + \"\"\"" + str + "\"\"\" + \"\\n</style>\"")
+  ).withDefaultValue { (str: String) => "\"\"\"" + str + "\"\"\"" }
 
   var fileExt = ".jade"
 

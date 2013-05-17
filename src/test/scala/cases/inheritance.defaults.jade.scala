@@ -3,10 +3,10 @@ package com.github.btd.jade.cases
 
 import org.specs2.mutable._
 
-class include_with_text_jadeSpec extends Specification {
-  "include-with-text.jade" should {
+class inheritance_defaults_jadeSpec extends Specification {
+  "inheritance.defaults.jade" should {
 
-    object include_with_text_html {
+    object inheritance_defaults_html {
       import com.github.btd.jade.Template._
 
       def apply() = {
@@ -18,16 +18,15 @@ builder ++= ("  ")
 builder ++= ("<" + "head" + "" + ">")
 builder ++= ("\n")
 builder ++= ("    ")
-builder ++= ("<" + "script" + " " + "type" + "=" + """'text/javascript'""" + ">")
-builder ++= ("""alert('hello world');""")
+builder ++= ("<" + "script" + " " + "src" + "=" + """'jquery.js'""" + ">")
 builder ++= ("</" + "script" + ">")
 builder ++= ("\n")
 builder ++= ("    ")
-builder ++= ("<" + "script" + " " + "src" + "=" + """'/caustic.js'""" + ">")
+builder ++= ("<" + "script" + " " + "src" + "=" + """'keymaster.js'""" + ">")
 builder ++= ("</" + "script" + ">")
 builder ++= ("\n")
 builder ++= ("    ")
-builder ++= ("<" + "script" + " " + "src" + "=" + """'/app.js'""" + ">")
+builder ++= ("<" + "script" + " " + "src" + "=" + """'caustic.js'""" + ">")
 builder ++= ("</" + "script" + ">")
 builder ++= ("\n")
 builder ++= ("  ")
@@ -42,8 +41,8 @@ builder.toString
     }
 
     "be equal expected html" in {
-      val testCaseHtml = io.Source.fromFile(new java.io.File("./jade/test/cases", "include-with-text.html")).getLines.mkString("\n")
-      include_with_text_html() === testCaseHtml
+      val testCaseHtml = io.Source.fromFile(new java.io.File("./jade/test/cases", "inheritance.defaults.html")).getLines.mkString("\n")
+      inheritance_defaults_html() === testCaseHtml
     }
   }
 }

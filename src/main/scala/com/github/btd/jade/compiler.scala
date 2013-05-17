@@ -114,6 +114,18 @@ class Compiler(nodes: Seq[Node], prettyPrint: Boolean = false) {
       case NodeSeq(nodes) =>
         visitBlock(nodes, indentLevel - 1)
 
+      case Literal(text) =>
+        buf(text)
+
+      case Mixin(name, args, isCall, block) =>
+        if (isCall) {
+          builder ++= ("jade_mixin_" + name + args.mkString("(", ", ", ")\n"))
+        } else {
+          builder ++= ("def jade_mixin_" + name + args.mkString("(", ", ", ") {\n"))
+          visitBlock(block, indentLevel - 1)
+          builder ++= ("}\n")
+        }
+
       case Empty => //ignore it
     }
   }
