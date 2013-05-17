@@ -3,10 +3,10 @@ package com.github.btd.jade.cases
 
 import org.specs2.mutable._
 
-class basic_jadeSpec extends Specification {
-  "basic.jade" should {
+class include_only_text_jadeSpec extends Specification {
+  "include-only-text.jade" should {
 
-    object basic_html {
+    object include_only_text_html {
       import com.github.btd.jade.Template._
 
       def apply() = {
@@ -18,9 +18,13 @@ class basic_jadeSpec extends Specification {
         builder ++= ("<" + "body" + "" + ">")
         builder ++= ("\n")
         builder ++= ("    ")
-        builder ++= ("<" + "h1" + "" + ">")
-        builder ++= ("""Title""")
-        builder ++= ("</" + "h1" + ">")
+        builder ++= ("<" + "p" + "" + ">")
+        builder ++= ("""The message is """")
+        builder ++= ("<" + "em" + "" + ">")
+        builder ++= ("""hello world""")
+        builder ++= ("</" + "em" + ">")
+        builder ++= (""""""")
+        builder ++= ("</" + "p" + ">")
         builder ++= ("\n")
         builder ++= ("  ")
         builder ++= ("</" + "body" + ">")
@@ -34,8 +38,8 @@ class basic_jadeSpec extends Specification {
     }
 
     "be equal expected html" in {
-      val testCaseHtml = io.Source.fromFile(new java.io.File("./jade/test/cases", "basic.html")).getLines.mkString("\n")
-      basic_html() === testCaseHtml
+      val testCaseHtml = io.Source.fromFile(new java.io.File("./jade/test/cases", "include-only-text.html")).getLines.mkString("\n")
+      include_only_text_html() === testCaseHtml
     }
   }
 }

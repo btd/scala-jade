@@ -113,7 +113,7 @@ class Lexer(var input: String) extends Logging {
     else Some(q.dequeue)
   }
 
-  private val spacesRE = """^\s*""".r
+  private val spacesRE = """^ *""".r
 
   def skipSpaces() {
     spacesRE.findFirstIn(input).map { m =>
@@ -140,13 +140,12 @@ class Lexer(var input: String) extends Logging {
   def nextToken: Option[Token] = {
     logger.debug("try to find next token: ")
     logger.debug(input.split("\n").take(2).mkString("\n"))
-    deferred orElse
+    val result = deferred orElse
       blank orElse
       eos orElse
       pipelessText orElse
       _yield orElse
       doctype orElse
-      interpolation orElse
       _case orElse
       when orElse
       default orElse
@@ -171,9 +170,12 @@ class Lexer(var input: String) extends Logging {
       comment orElse
       colon orElse
       text
+
+    logger.debug("found: " + result)
+    result
   }
 
-  private val blankLineRE = """^\n\s*\n""".r
+  private val blankLineRE = """^\n[ \t]*\n""".r
 
   def blank = {
     blankLineRE.findFirstIn(input).flatMap { m =>
@@ -185,13 +187,9 @@ class Lexer(var input: String) extends Logging {
     }
   }
 
-  private val commentRE = """^\s*\/\/(-)?([^\n]*)""".r
+  private val commentRE = """^ *\/\/(-)?([^\n]*)""".r
 
   def comment = scan2(commentRE, (buffered, value) => Comment(value, buffered != "-"))
-
-  private val interpolationRE = """^#\{([^\n]*)\}""".r
-
-  def interpolation = None //scan1(interpolationRE, Interpolation(_))
 
   private val tagRE = """^(\w[-:\w]*)(\/?)?""".r
 
@@ -254,7 +252,7 @@ class Lexer(var input: String) extends Logging {
 
   def text = scan1(textRE, Text(_))
 
-  private val extendsRE = """^extends?\s+([^\n]+)""".r
+  private val extendsRE = """^extends? +([^\n]+)""".r
 
   def extend = scan1(extendsRE, Extends(_))
 
@@ -266,11 +264,11 @@ class Lexer(var input: String) extends Logging {
 
   def append = scan1(appendRE, Block(_, "append"))
 
-  private val blockRE = """^block\b\s*(?:(prepend|append)\s+)?([^\n]*)""".r
+  private val blockRE = """^block\b *(?:(prepend|append) +)?([^\n]*)""".r
 
   def block = scan2(blockRE, (mode, value) => Block(value, empty(mode).getOrElse("replace")))
 
-  private val yieldRE = """^yield\s*""".r
+  private val yieldRE = """^yield *""".r
 
   def _yield = scan0(yieldRE, Yield)
 
@@ -296,11 +294,11 @@ class Lexer(var input: String) extends Logging {
 
   private val mixinCallRE = """^\+([-\w]+) *(?:\(([^\n]+)\))?""".r
 
-  def call = scan2(mixinCallRE, (name, args) => Call(name, (if (args == null) Array() else args.split("""\s*,\s*""")).toSeq))
+  def call = scan2(mixinCallRE, (name, args) => Call(name, (if (args == null) Array() else args.split(""" *, *""")).toSeq))
 
   private val mixinRE = """^mixin +([-\w]+)(?: *\((.*)\))?""".r
 
-  def mixin = scan2(mixinRE, (name, args) => Mixin(name, (if (args == null) Array() else args.split("""\s*,\s*""")).toSeq))
+  def mixin = scan2(mixinRE, (name, args) => Mixin(name, (if (args == null) Array() else args.split(""" *, *""")).toSeq))
 
   private val conditionalRE = """^(if|unless|else if|else)\b([^\n]*)""".r
 

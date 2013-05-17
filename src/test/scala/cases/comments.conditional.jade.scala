@@ -11,14 +11,14 @@ class comments_conditional_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("<!--[if IE lt 9]>")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<" + "script" + " " + "src" + "=" + """'/lame.js'""" + ">")
-builder ++= ("</" + "script" + ">")
-builder ++= ("<![endif]-->")
+        builder ++= ("<!--[if IE lt 9]>")
+        builder ++= ("\n")
+        builder ++= ("")
+        builder ++= ("<" + "script" + " " + "src" + "=" + """'/lame.js'""" + ">")
+        builder ++= ("</" + "script" + ">")
+        builder ++= ("<![endif]-->")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -29,4 +29,3 @@ builder.toString
     }
   }
 }
-    

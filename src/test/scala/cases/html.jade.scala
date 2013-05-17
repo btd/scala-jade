@@ -11,31 +11,31 @@ class html_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("")
-builder ++= ("""<ul>""")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("")
-builder ++= ("""<li>foo</li>""")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("")
-builder ++= ("""<li>bar</li>""")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("")
-builder ++= ("""<li>baz</li>""")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("")
-builder ++= ("""</ul>""")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("""You can <em>embed</em> html as well.""")
-builder ++= ("</" + "p" + ">")
+        builder ++= ("")
+        builder ++= ("""<ul>""")
+        builder ++= ("\n")
+        builder ++= ("")
+        builder ++= ("")
+        builder ++= ("""<li>foo</li>""")
+        builder ++= ("\n")
+        builder ++= ("")
+        builder ++= ("")
+        builder ++= ("""<li>bar</li>""")
+        builder ++= ("\n")
+        builder ++= ("")
+        builder ++= ("")
+        builder ++= ("""<li>baz</li>""")
+        builder ++= ("\n")
+        builder ++= ("")
+        builder ++= ("")
+        builder ++= ("""</ul>""")
+        builder ++= ("\n")
+        builder ++= ("")
+        builder ++= ("<" + "p" + "" + ">")
+        builder ++= ("""You can <em>embed</em> html as well.""")
+        builder ++= ("</" + "p" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -46,4 +46,3 @@ builder.toString
     }
   }
 }
-    

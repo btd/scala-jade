@@ -11,11 +11,13 @@ object Main extends App with Logging {
 
     val ext = empty(Path.extname(name)).getOrElse(Jade.fileExt)
 
-    val path = Path.join(testCasesJadeDir, subDirName, fileName + ext)
+    logger.debug("Get input " + name)
+    val path = if (Path.isAbsolute(name)) Path.join(testCasesJadeDir, subDirName, fileName + ext) else Path.join(subDirName, fileName + ext)
     logger.debug("Try to find file " + path)
     (Path.join(subDirName, fileName + ext), io.Source.fromFile(path).getLines.mkString("\n"))
   }
-  val tokens = new Parser(io.Source.fromFile(new java.io.File(testCasesJadeDir + "/include-extends-from-root.jade")).getLines.mkString("\n"), testCasesJadeDir + "/include-extends-from-root.jade").parse
+  val testCase = "include.yield.nested.jade"
+  val tokens = new Parser(io.Source.fromFile(new java.io.File(testCasesJadeDir + "/" + testCase)).getLines.mkString("\n"), testCasesJadeDir + "/" + testCase).parse
   println(tokens)
   println(new Compiler(tokens, true).compile)
 }
@@ -41,7 +43,7 @@ object GenTests extends App with Logging {
     (Path.join(subDirName, fileName + ext), io.Source.fromFile(path).getLines.mkString("\n"))
   }
 
-  val N = 30
+  val N = 35
   var i = 0
   for {
     test <- dir.list

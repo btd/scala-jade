@@ -11,35 +11,35 @@ class include_extends_from_root_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("")
-builder ++= ("<" + "html" + "" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "head" + "" + ">")
-builder ++= ("\n")
-builder ++= ("    ")
-builder ++= ("<" + "title" + "" + ">")
-builder ++= ("""My Application""")
-builder ++= ("</" + "title" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("</" + "head" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "body" + "" + ">")
-builder ++= ("\n")
-builder ++= ("    ")
-builder ++= ("<" + "h1" + "" + ">")
-builder ++= ("""hello""")
-builder ++= ("</" + "h1" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("</" + "body" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("</" + "html" + ">")
+        builder ++= ("")
+        builder ++= ("<" + "html" + "" + ">")
+        builder ++= ("\n")
+        builder ++= ("  ")
+        builder ++= ("<" + "head" + "" + ">")
+        builder ++= ("\n")
+        builder ++= ("    ")
+        builder ++= ("<" + "title" + "" + ">")
+        builder ++= ("""My Application""")
+        builder ++= ("</" + "title" + ">")
+        builder ++= ("\n")
+        builder ++= ("  ")
+        builder ++= ("</" + "head" + ">")
+        builder ++= ("\n")
+        builder ++= ("  ")
+        builder ++= ("<" + "body" + "" + ">")
+        builder ++= ("\n")
+        builder ++= ("    ")
+        builder ++= ("<" + "h1" + "" + ">")
+        builder ++= ("""hello""")
+        builder ++= ("</" + "h1" + ">")
+        builder ++= ("\n")
+        builder ++= ("  ")
+        builder ++= ("</" + "body" + ">")
+        builder ++= ("\n")
+        builder ++= ("")
+        builder ++= ("</" + "html" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -50,4 +50,3 @@ builder.toString
     }
   }
 }
-    

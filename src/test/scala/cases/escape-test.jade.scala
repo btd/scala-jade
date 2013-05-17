@@ -11,41 +11,41 @@ class escape_test_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("""<!DOCTYPE html>""")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<" + "html" + "" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "head" + "" + ">")
-builder ++= ("\n")
-builder ++= ("    ")
-builder ++= ("<" + "title" + "" + ">")
-builder ++= ("""escape-test""")
-builder ++= ("</" + "title" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("</" + "head" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "body" + "" + ">")
-builder ++= ("\n")
-builder ++= ("    ")
-builder ++= ("<" + "textarea" + "" + ">")
-var txt = """<param name="flashvars" value="a=&quot;value_a&quot;&b=&quot;value_b&quot;&c=3"/>"""
+        builder ++= ("""<!DOCTYPE html>""")
+        builder ++= ("\n")
+        builder ++= ("")
+        builder ++= ("<" + "html" + "" + ">")
+        builder ++= ("\n")
+        builder ++= ("  ")
+        builder ++= ("<" + "head" + "" + ">")
+        builder ++= ("\n")
+        builder ++= ("    ")
+        builder ++= ("<" + "title" + "" + ">")
+        builder ++= ("""escape-test""")
+        builder ++= ("</" + "title" + ">")
+        builder ++= ("\n")
+        builder ++= ("  ")
+        builder ++= ("</" + "head" + ">")
+        builder ++= ("\n")
+        builder ++= ("  ")
+        builder ++= ("<" + "body" + "" + ">")
+        builder ++= ("\n")
+        builder ++= ("    ")
+        builder ++= ("<" + "textarea" + "" + ">")
+        var txt = """<param name="flashvars" value="a=&quot;value_a&quot;&b=&quot;value_b&quot;&c=3"/>"""
 
-builder ++= ("""""" + escape((txt).toString) + """""")
-builder ++= ("\n")
-builder ++= ("    ")
-builder ++= ("</" + "textarea" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("</" + "body" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("</" + "html" + ">")
+        builder ++= ("""""" + escape((txt).toString) + """""")
+        builder ++= ("\n")
+        builder ++= ("    ")
+        builder ++= ("</" + "textarea" + ">")
+        builder ++= ("\n")
+        builder ++= ("  ")
+        builder ++= ("</" + "body" + ">")
+        builder ++= ("\n")
+        builder ++= ("")
+        builder ++= ("</" + "html" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -56,4 +56,3 @@ builder.toString
     }
   }
 }
-    

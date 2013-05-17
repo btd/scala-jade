@@ -11,28 +11,28 @@ class blanks_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("")
-builder ++= ("<" + "ul" + "" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "li" + "" + ">")
-builder ++= ("""foo""")
-builder ++= ("</" + "li" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "li" + "" + ">")
-builder ++= ("""bar""")
-builder ++= ("</" + "li" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "li" + "" + ">")
-builder ++= ("""baz""")
-builder ++= ("</" + "li" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("</" + "ul" + ">")
+        builder ++= ("")
+        builder ++= ("<" + "ul" + "" + ">")
+        builder ++= ("\n")
+        builder ++= ("  ")
+        builder ++= ("<" + "li" + "" + ">")
+        builder ++= ("""foo""")
+        builder ++= ("</" + "li" + ">")
+        builder ++= ("\n")
+        builder ++= ("  ")
+        builder ++= ("<" + "li" + "" + ">")
+        builder ++= ("""bar""")
+        builder ++= ("</" + "li" + ">")
+        builder ++= ("\n")
+        builder ++= ("  ")
+        builder ++= ("<" + "li" + "" + ">")
+        builder ++= ("""baz""")
+        builder ++= ("</" + "li" + ">")
+        builder ++= ("\n")
+        builder ++= ("")
+        builder ++= ("</" + "ul" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -43,4 +43,3 @@ builder.toString
     }
   }
 }
-    

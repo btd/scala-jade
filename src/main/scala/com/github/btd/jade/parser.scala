@@ -6,7 +6,7 @@ import nodes._
 class Parser(var input: String, filename: String) extends Logging {
   val lexer = new Lexer(input)
 
-  var contexts = this :: Nil
+  var yieldReplace = Seq[Node]()
 
   var extending: ?[Parser] = None
 
@@ -14,13 +14,6 @@ class Parser(var input: String, filename: String) extends Logging {
 
   // evaluated block values
   var parsedBlocks = Map[String, (String, Seq[Node])]()
-
-  def context(parser: ?[Parser] = None) = {
-    parser.map { p =>
-      contexts = p :: contexts
-      p
-    } orElse (contexts.headOption)
-  }
 
   def advance() = {
     logger.debug(filename + "|> " + "advance")
@@ -63,9 +56,7 @@ class Parser(var input: String, filename: String) extends Logging {
       parser.parsedBlocks = parsedBlocks
 
       //this one is executing with thought that we already evaluate all blocks
-      context(extending)
       val ast = mixins ++ parser.parse()
-      context()
 
       ast
     } getOrElse {
@@ -95,7 +86,7 @@ class Parser(var input: String, filename: String) extends Logging {
       case Interpolation(value) => parseInterpolation(value)
       case Yield =>
         advance()
-        nodes.Yield
+        NodeSeq(yieldReplace)
       case Id(name) =>
         advance()
         lexer.defer(Tag("div", false))
@@ -348,16 +339,16 @@ class Parser(var input: String, filename: String) extends Logging {
       parser.parsedBlocks = parsedBlocks
       parser.mixins = this.mixins
 
-      context(Some(parser))
+      val yieldReplaceBlock = peek() match {
+        case Tokens.Indent(_) => block()
+        case _ => Nil
+      }
+
+      parser.yieldReplace = yieldReplaceBlock
+
       val ast = parser.parse()
       logger.debug(filename + "|> " + "Parsed such ast: " + ast)
-      context()
 
-      peek() match {
-        case Tokens.Indent(_) =>
-        //find last block or first yield
-        case _ =>
-      }
       NodeSeq(ast)
     } else {
       val ext = Path.extname(value)

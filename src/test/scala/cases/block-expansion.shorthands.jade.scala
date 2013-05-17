@@ -11,30 +11,30 @@ class block_expansion_shorthands_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("")
-builder ++= ("<" + "ul" + "" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "li" + " " + "class" + "=" + """'list-item'""" + ">")
-builder ++= ("\n")
-builder ++= ("    ")
-builder ++= ("<" + "div" + " " + "class" + "=" + """'foo'""" + ">")
-builder ++= ("\n")
-builder ++= ("      ")
-builder ++= ("<" + "div" + " " + "id" + "=" + """'bar'""" + ">")
-builder ++= ("""baz""")
-builder ++= ("</" + "div" + ">")
-builder ++= ("\n")
-builder ++= ("    ")
-builder ++= ("</" + "div" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("</" + "li" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("</" + "ul" + ">")
+        builder ++= ("")
+        builder ++= ("<" + "ul" + "" + ">")
+        builder ++= ("\n")
+        builder ++= ("  ")
+        builder ++= ("<" + "li" + " " + "class" + "=" + """'list-item'""" + ">")
+        builder ++= ("\n")
+        builder ++= ("    ")
+        builder ++= ("<" + "div" + " " + "class" + "=" + """'foo'""" + ">")
+        builder ++= ("\n")
+        builder ++= ("      ")
+        builder ++= ("<" + "div" + " " + "id" + "=" + """'bar'""" + ">")
+        builder ++= ("""baz""")
+        builder ++= ("</" + "div" + ">")
+        builder ++= ("\n")
+        builder ++= ("    ")
+        builder ++= ("</" + "div" + ">")
+        builder ++= ("\n")
+        builder ++= ("  ")
+        builder ++= ("</" + "li" + ">")
+        builder ++= ("\n")
+        builder ++= ("")
+        builder ++= ("</" + "ul" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -45,4 +45,3 @@ builder.toString
     }
   }
 }
-    

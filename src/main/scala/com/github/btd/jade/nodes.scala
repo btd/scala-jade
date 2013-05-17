@@ -27,8 +27,9 @@ case class Tag(
     def isInline(node: Node): Boolean = {
       node match {
         case t @ Tag(_, _, block, _, _, _) => t.isInline && block.forall(isInline)
-        case Text(_) => true
-        case _ => false
+        case Text(_) | Empty => true
+        case NodeSeq(nodes) => nodes.forall(isInline)
+        case other => false
       }
     }
 
@@ -36,15 +37,13 @@ case class Tag(
     else {
       if (block.size == 1) isInline(block.head)
       else {
-        if (isInline(this)) {
-          block.zip(block.tail).contains((p: (Node, Node)) => isText(p._1) && isText(p._2))
+        if (block.forall(isInline)) {
+          !block.zip(block.tail).contains((p: (Node, Node)) => isText(p._1) && isText(p._2))
         } else false
       }
     }
   }
 }
-
-case class Block(name: String, mode: String, block: Seq[Node]) extends Node
 
 case class NodeSeq(nodes: Seq[Node]) extends Node with collection.SeqProxy[Node] {
   val self = nodes
@@ -68,9 +67,7 @@ case class Code(value: String, escape: Boolean, buffer: Boolean, block: ?[Seq[No
 case class Case(expr: String, block: Seq[Node]) extends Node
 case class When(expr: String, block: Seq[Node]) extends Node
 
-case object Yield extends Node
-
-case object Empty extends Node
+case object Empty extends Node // this is  'do nothing node'
 
 object Node {
   def isText(node: Node) = {

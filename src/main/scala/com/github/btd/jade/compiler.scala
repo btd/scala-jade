@@ -193,7 +193,7 @@ class Compiler(nodes: Seq[Node], prettyPrint: Boolean = false) {
     buf(quote(tab))
   }
 
-  def isQuoted(str: String) = (str.startsWith("\"") && str.endsWith("\"")) || (str.startsWith("'") && str.endsWith("'"))
+  def isQuoted(str: String) = str.length > 1 && ((str.startsWith("\"") && str.endsWith("\"")) || (str.startsWith("'") && str.endsWith("'")))
 
   def qi(s: String) = {
     val quote = Jade.quote

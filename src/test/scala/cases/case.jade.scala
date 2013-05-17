@@ -11,44 +11,44 @@ class case_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("")
-builder ++= ("<" + "html" + "" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "body" + "" + ">")
-val friends = (1)
+        builder ++= ("")
+        builder ++= ("<" + "html" + "" + ">")
+        builder ++= ("\n")
+        builder ++= ("  ")
+        builder ++= ("<" + "body" + "" + ">")
+        val friends = (1)
 
-(friends) match {
-case 0 => {
-builder ++= ("\n")
-builder ++= ("    ")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("""you have no friends""")
-builder ++= ("</" + "p" + ">")
-}
-case 1 => {
-builder ++= ("\n")
-builder ++= ("    ")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("""you have a friend""")
-builder ++= ("</" + "p" + ">")
-}
-case _ => {
-builder ++= ("\n")
-builder ++= ("    ")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("""you have """ + escape((friends).toString) + """ friends""")
-builder ++= ("</" + "p" + ">")
-}
-}
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("</" + "body" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("</" + "html" + ">")
+        (friends) match {
+          case 0 => {
+            builder ++= ("\n")
+            builder ++= ("    ")
+            builder ++= ("<" + "p" + "" + ">")
+            builder ++= ("""you have no friends""")
+            builder ++= ("</" + "p" + ">")
+          }
+          case 1 => {
+            builder ++= ("\n")
+            builder ++= ("    ")
+            builder ++= ("<" + "p" + "" + ">")
+            builder ++= ("""you have a friend""")
+            builder ++= ("</" + "p" + ">")
+          }
+          case _ => {
+            builder ++= ("\n")
+            builder ++= ("    ")
+            builder ++= ("<" + "p" + "" + ">")
+            builder ++= ("""you have """ + escape((friends).toString) + """ friends""")
+            builder ++= ("</" + "p" + ">")
+          }
+        }
+        builder ++= ("\n")
+        builder ++= ("  ")
+        builder ++= ("</" + "body" + ">")
+        builder ++= ("\n")
+        builder ++= ("")
+        builder ++= ("</" + "html" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -59,4 +59,3 @@ builder.toString
     }
   }
 }
-    

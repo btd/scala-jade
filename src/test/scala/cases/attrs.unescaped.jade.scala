@@ -11,24 +11,24 @@ class attrs_unescaped_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("")
-builder ++= ("<" + "script" + " " + "type" + "=" + """'text/x-template'""" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "div" + " " + "id" + "=" + """'user-<%= user.id %>'""" + ">")
-builder ++= ("\n")
-builder ++= ("    ")
-builder ++= ("<" + "h1" + "" + ">")
-builder ++= ("""<%= user.title %>""")
-builder ++= ("</" + "h1" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("</" + "div" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("</" + "script" + ">")
+        builder ++= ("")
+        builder ++= ("<" + "script" + " " + "type" + "=" + """'text/x-template'""" + ">")
+        builder ++= ("\n")
+        builder ++= ("  ")
+        builder ++= ("<" + "div" + " " + "id" + "=" + """'user-<%= user.id %>'""" + ">")
+        builder ++= ("\n")
+        builder ++= ("    ")
+        builder ++= ("<" + "h1" + "" + ">")
+        builder ++= ("""<%= user.title %>""")
+        builder ++= ("</" + "h1" + ">")
+        builder ++= ("\n")
+        builder ++= ("  ")
+        builder ++= ("</" + "div" + ">")
+        builder ++= ("\n")
+        builder ++= ("")
+        builder ++= ("</" + "script" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -39,4 +39,3 @@ builder.toString
     }
   }
 }
-    
