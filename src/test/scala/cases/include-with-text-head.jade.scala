@@ -11,18 +11,25 @@ class include_with_text_head_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("")
-builder ++= ("<" + "head" + "" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "script" + " " + "type" + "=" + """'text/javascript'""" + ">")
-builder ++= ("""alert('hello world');""")
-builder ++= ("</" + "script" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("</" + "head" + ">")
+        var firstLine = true
+        def buf(str: String) {
+          builder ++= str
+          firstLine = false
+        }
+        def nl() = if (!firstLine) buf("\n")
+        nl()
+        buf("")
+        buf("<" + "head" + "" + ">")
+        nl()
+        buf("  ")
+        buf("<" + "script" + " " + "type" + "=" + """'text/javascript'""" + ">")
+        buf("""alert('hello world');""")
+        buf("</" + "script" + ">")
+        nl()
+        buf("")
+        buf("</" + "head" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -33,4 +40,3 @@ builder.toString
     }
   }
 }
-    

@@ -292,7 +292,7 @@ class Lexer(var input: String) extends Logging {
 
   def assignment = scan2(assignmentRE, (name, value) => Code(s"val $name = ($value)"))
 
-  private val mixinCallRE = """^\+([-\w]+) *(?:\(([^\n]+)\))?""".r
+  private val mixinCallRE = """^\+([-\w]+) *(?:\(([^\n]*)\))?""".r
 
   def call = scan2(mixinCallRE, (name, args) => Call(name, (if (args == null) Array() else args.split(""" *, *""")).toSeq))
 
@@ -325,7 +325,7 @@ class Lexer(var input: String) extends Logging {
     Code(c, flags.charAt(0) == '=', flags.charAt(0) == '=' || (flags.length > 1 && flags.charAt(1) == '='))
   })
 
-  private val attrName = """[\w-_]+"""
+  private val attrName = """[\w-_:]+"""
 
   private val attrValue = """'[^'\n]*'|"[^"\n]*"|[\w_$]+"""
 

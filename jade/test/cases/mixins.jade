@@ -1,11 +1,5 @@
 
-mixin comment(title, str)
-  .comment
-    h2= title
-    p.body= str
-
-
-mixin comment (title, str)
+mixin comment(title: String, str: String)
   .comment
     h2= title
     p.body= str
@@ -13,8 +7,7 @@ mixin comment (title, str)
 #user
   h1 Tobi
   .comments
-    +comment('This',
-            (('is regular, javascript')))
+    +comment("This", "is regular, javascript")
 
 mixin list()
   ul
@@ -23,4 +16,4 @@ mixin list()
     li baz
 
 body
-  mixin list()
+  +list()

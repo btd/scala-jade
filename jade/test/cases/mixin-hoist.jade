@@ -1,7 +1,7 @@
 
-mixin foo()
+mixin foo(title: String)
   h1= title
 
 html
   body
-    mixin foo
+    +foo("Jade")

@@ -273,9 +273,11 @@ class Parser(var input: String, filename: String) extends Logging {
   def parseFilter(value: String) = {
     advance()
 
-    //TODO How in filters can be attributes??? O_o
+    lexer.pipeless = true
+    val text = parseTextBlock()
+    lexer.pipeless = false
 
-    Filter(value, parseTextBlock())
+    Filter(value, text)
   }
 
   def parseEach(key: String, coll: String) = {
@@ -290,6 +292,7 @@ class Parser(var input: String, filename: String) extends Logging {
   }
 
   def fileName(path: String) = {
+    logger.debug(s"Find path $path relative to $filename")
     if (Path.isAbsolute(path)) path
     else Path.join(Path.dirname(filename), path)
   }
@@ -297,7 +300,7 @@ class Parser(var input: String, filename: String) extends Logging {
   def parseExtends(value: String) = {
     advance()
 
-    val (filename, input) = Jade.getInput(fileName(value))
+    val (filename, input) = Jade.sourceLoader.getInput(fileName(value))
     this.extending = Some(new Parser(input, filename))
 
     Empty
@@ -306,31 +309,35 @@ class Parser(var input: String, filename: String) extends Logging {
   def parseBlock(value: String, mode: String) = {
     advance()
 
-    logger.debug(filename + "|> " + "Parse block " + value + " mode " + mode)
+    if (value == "") MixinBlock
+    else {
 
-    val nodes = peek() match {
-      case Tokens.Indent(_) =>
-        block()
-      case _ =>
-        Nil
+      logger.debug(filename + "|> " + "Parse block " + value + " mode " + mode)
+
+      val nodes = peek() match {
+        case Tokens.Indent(_) =>
+          block()
+        case _ =>
+          Nil
+      }
+
+      parsedBlocks = parsedBlocks + (value -> parsedBlocks.get(value).map { pb =>
+        logger.debug("Found previous block with this name: " + pb)
+        mode -> (pb._1 match {
+          case "append" => nodes ++ pb._2
+          case "prepend" => pb._2 ++ nodes
+          case "replace" => pb._2
+        })
+      }.getOrElse(mode -> nodes))
+
+      NodeSeq(parsedBlocks(value)._2)
     }
-
-    parsedBlocks = parsedBlocks + (value -> parsedBlocks.get(value).map { pb =>
-      logger.debug("Found previous block with this name: " + pb)
-      mode -> (pb._1 match {
-        case "append" => nodes ++ pb._2
-        case "prepend" => pb._2 ++ nodes
-        case "replace" => pb._2
-      })
-    }.getOrElse(mode -> nodes))
-
-    NodeSeq(parsedBlocks(value)._2)
   }
 
   def parseInclude(value: String) = {
     advance()
 
-    val (filename, input) = Jade.getInput(fileName(value))
+    val (filename, input) = Jade.sourceLoader.getInput(fileName(value))
 
     logger.debug(filename + "|> " + "Parse include: " + value + " founded " + filename)
     logger.debug(filename + "|> " + "Content " + input)
@@ -354,7 +361,7 @@ class Parser(var input: String, filename: String) extends Logging {
       NodeSeq(ast)
     } else {
       val ext = Path.extname(value)
-      val (filename, input) = Jade.getInput(fileName(value))
+      val (filename, input) = Jade.sourceLoader.getInput(fileName(value))
       Literal(Jade.filters(ext)(input))
     }
   }
@@ -362,16 +369,43 @@ class Parser(var input: String, filename: String) extends Logging {
   def parseCall(value: String, args: Seq[String]) = {
     advance()
 
-    var node = Mixin(value, args, true)
+    var tag = Mixin(value, args, true)
 
-    //TODO not sure what happen there ?? if it is a call why i need to check indent ???
+    var textOnly = false
+
+    if (peek().value == ".") {
+      textOnly = true
+      advance()
+    }
+
+    peek() match {
+      case Tokens.Code(value, escaped, buffered) =>
+        tag = tag.copy(block = tag.block :+ parseCode(value, escaped, buffered))
+
+      case Tokens.Text(value) =>
+        tag = tag.copy(block = tag.block :+ parseText(value))
+
+      case Tokens.Colon =>
+        advance()
+        tag = tag.copy(block = Seq(parseExpr()))
+
+      case Tokens.Indent(_) | Tokens.NewLine | Tokens.Outdent | Tokens.Eos => //do nothing to process a bit later
+    }
+
+    while (peek() == Tokens.NewLine) advance()
 
     peek() match {
       case Tokens.Indent(indent) =>
-        node = node.copy(block = block())
+        if (textOnly) {
+          lexer.pipeless = true
+          tag = tag.copy(block = parseTextBlock())
+          lexer.pipeless = false
+        } else {
+          tag = tag.copy(block = tag.block ++: block())
+        }
       case _ =>
     }
-    node
+    tag
   }
 
   def parseMixin(value: String, args: Seq[String]) = {
@@ -385,10 +419,12 @@ class Parser(var input: String, filename: String) extends Logging {
       case _ =>
     }
 
+    mixins = node +: mixins
+
     node
   }
 
-  def parseTextBlock(): Seq[Text] = {
+  def parseTextBlock(baseSpaces: Option[String] = None): Seq[Text] = {
     var b = Seq[Text]()
 
     peek() match {
@@ -405,9 +441,9 @@ class Parser(var input: String, filename: String) extends Logging {
               advance()
             case Tokens.Text(value) =>
               advance()
-              b = b :+ Text(value)
+              b = b :+ Text((" " * baseSpaces.map(spaces.length - _.length).getOrElse(0)) + value)
             case Tokens.Indent(_) =>
-              b = b ++ parseTextBlock()
+              b = b ++ parseTextBlock(baseSpaces.orElse(Some(spaces)))
           }
         }
 

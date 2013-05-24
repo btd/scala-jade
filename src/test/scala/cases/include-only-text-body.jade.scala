@@ -11,10 +11,16 @@ class include_only_text_body_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("""The message is """")
-builder ++= (""""""")
+        var firstLine = true
+        def buf(str: String) {
+          builder ++= str
+          firstLine = false
+        }
+        def nl() = if (!firstLine) buf("\n")
+        buf("""The message is """")
+        buf(""""""")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -25,4 +31,3 @@ builder.toString
     }
   }
 }
-    

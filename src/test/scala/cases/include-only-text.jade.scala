@@ -11,28 +11,35 @@ class include_only_text_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("")
-builder ++= ("<" + "html" + "" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "body" + "" + ">")
-builder ++= ("\n")
-builder ++= ("    ")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("""The message is """")
-builder ++= ("<" + "em" + "" + ">")
-builder ++= ("""hello world""")
-builder ++= ("</" + "em" + ">")
-builder ++= (""""""")
-builder ++= ("</" + "p" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("</" + "body" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("</" + "html" + ">")
+        var firstLine = true
+        def buf(str: String) {
+          builder ++= str
+          firstLine = false
+        }
+        def nl() = if (!firstLine) buf("\n")
+        nl()
+        buf("")
+        buf("<" + "html" + "" + ">")
+        nl()
+        buf("  ")
+        buf("<" + "body" + "" + ">")
+        nl()
+        buf("    ")
+        buf("<" + "p" + "" + ">")
+        buf("""The message is """")
+        buf("<" + "em" + "" + ">")
+        buf("""hello world""")
+        buf("</" + "em" + ">")
+        buf(""""""")
+        buf("</" + "p" + ">")
+        nl()
+        buf("  ")
+        buf("</" + "body" + ">")
+        nl()
+        buf("")
+        buf("</" + "html" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -43,4 +50,3 @@ builder.toString
     }
   }
 }
-    

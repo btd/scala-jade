@@ -11,16 +11,22 @@ class attrs_interpolation_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-var id = 5
+        var firstLine = true
+        def buf(str: String) {
+          builder ++= str
+          firstLine = false
+        }
+        def nl() = if (!firstLine) buf("\n")
+        var id = 5
 
-builder ++= ("<" + "a" + " " + "href" + "=" + """'/user/""" + escape((id).toString) + """'""" + ">")
-builder ++= ("</" + "a" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<" + "foo" + " " + "bar" + "=" + """'stuff #{here} yup'""" + ">")
-builder ++= ("</" + "foo" + ">")
+        buf("<" + "a" + " " + "href" + "=" + """'/user/""" + escape((id).toString) + """'""" + ">")
+        buf("</" + "a" + ">")
+        nl()
+        buf("")
+        buf("<" + "foo" + " " + "bar" + "=" + """'stuff #{here} yup'""" + ">")
+        buf("</" + "foo" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -31,4 +37,3 @@ builder.toString
     }
   }
 }
-    

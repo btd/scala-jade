@@ -11,26 +11,32 @@ class doctype_default_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("""<!DOCTYPE html>""")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<" + "html" + "" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "body" + "" + ">")
-builder ++= ("\n")
-builder ++= ("    ")
-builder ++= ("<" + "h1" + "" + ">")
-builder ++= ("""Title""")
-builder ++= ("</" + "h1" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("</" + "body" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("</" + "html" + ">")
+        var firstLine = true
+        def buf(str: String) {
+          builder ++= str
+          firstLine = false
+        }
+        def nl() = if (!firstLine) buf("\n")
+        buf("""<!DOCTYPE html>""")
+        nl()
+        buf("")
+        buf("<" + "html" + "" + ">")
+        nl()
+        buf("  ")
+        buf("<" + "body" + "" + ">")
+        nl()
+        buf("    ")
+        buf("<" + "h1" + "" + ">")
+        buf("""Title""")
+        buf("</" + "h1" + ">")
+        nl()
+        buf("  ")
+        buf("</" + "body" + ">")
+        nl()
+        buf("")
+        buf("</" + "html" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -41,4 +47,3 @@ builder.toString
     }
   }
 }
-    

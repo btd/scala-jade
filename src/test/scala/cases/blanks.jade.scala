@@ -11,28 +11,35 @@ class blanks_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("")
-builder ++= ("<" + "ul" + "" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "li" + "" + ">")
-builder ++= ("""foo""")
-builder ++= ("</" + "li" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "li" + "" + ">")
-builder ++= ("""bar""")
-builder ++= ("</" + "li" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "li" + "" + ">")
-builder ++= ("""baz""")
-builder ++= ("</" + "li" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("</" + "ul" + ">")
+        var firstLine = true
+        def buf(str: String) {
+          builder ++= str
+          firstLine = false
+        }
+        def nl() = if (!firstLine) buf("\n")
+        nl()
+        buf("")
+        buf("<" + "ul" + "" + ">")
+        nl()
+        buf("  ")
+        buf("<" + "li" + "" + ">")
+        buf("""foo""")
+        buf("</" + "li" + ">")
+        nl()
+        buf("  ")
+        buf("<" + "li" + "" + ">")
+        buf("""bar""")
+        buf("</" + "li" + ">")
+        nl()
+        buf("  ")
+        buf("<" + "li" + "" + ">")
+        buf("""baz""")
+        buf("</" + "li" + ">")
+        nl()
+        buf("")
+        buf("</" + "ul" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -43,4 +50,3 @@ builder.toString
     }
   }
 }
-    

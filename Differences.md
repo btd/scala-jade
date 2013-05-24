@@ -8,3 +8,5 @@ Differences with javascript Jade
 	3. Case translated to scala case, default it it case _ => ...
 
 	4. Mixin call will happen only with +mixin_name(...)
+
+	5. Mixin call could not have attributes

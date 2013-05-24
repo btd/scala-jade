@@ -11,12 +11,19 @@ class escape_chars_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("")
-builder ++= ("<" + "script" + " " + "type" + "=" + """'text/javascript'""" + ">")
-builder ++= ("""var re = /\d+/;""")
-builder ++= ("</" + "script" + ">")
+        var firstLine = true
+        def buf(str: String) {
+          builder ++= str
+          firstLine = false
+        }
+        def nl() = if (!firstLine) buf("\n")
+        nl()
+        buf("")
+        buf("<" + "script" + " " + "type" + "=" + """'text/javascript'""" + ">")
+        buf("""var re = /\d+/;""")
+        buf("</" + "script" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -27,4 +34,3 @@ builder.toString
     }
   }
 }
-    

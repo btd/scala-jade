@@ -10,6 +10,15 @@ class Compiler(nodes: Seq[Node], prettyPrint: Boolean = false) {
   val builder = new collection.mutable.StringBuilder
 
   builder ++= "val builder = new collection.mutable.StringBuilder\n"
+  if (prettyPrint) {
+    builder ++= """var firstLine = true
+        def buf(str: String) {
+          builder ++= str
+          firstLine = false
+        }
+        def nl() = if(!firstLine) buf("\n")
+        """
+  }
 
   def compile() = {
     visitBlock(nodes, -1)
@@ -19,7 +28,7 @@ class Compiler(nodes: Seq[Node], prettyPrint: Boolean = false) {
     builder.toString
   }
 
-  def visit(node: Node, indentLevel: Int = 0) {
+  def visit(node: Node, indentLevel: Int = 0, insideMixin: Boolean) {
 
     node match {
       case Doctype(value) =>
@@ -36,7 +45,7 @@ class Compiler(nodes: Seq[Node], prettyPrint: Boolean = false) {
             block <- blockOpt
             n <- block
           } {
-            visit(n, indentLevel)
+            visit(n, indentLevel, insideMixin)
           }
           builder ++= (blockOpt.map(_ => "}\n").getOrElse("\n"))
         }
@@ -52,14 +61,16 @@ class Compiler(nodes: Seq[Node], prettyPrint: Boolean = false) {
           }.getOrElse(space + q(attr._1))
         }
 
-        if (prettyPrint && !t.isInline) indent(indentLevel, true)
+        val neverPrettyPrint = Jade.neverPrettyPrint.contains(name)
+
+        if (prettyPrint && !t.isInline) indent(indentLevel, true, insideMixin)
 
         buf(q("<") + tagName + (if (!attrs.isEmpty) i(attrs.reduce(_ + _)) else nothing) + (if (selfClose) "/>" else ">"))
 
         if (!selfClose) {
-          code.foreach(visit(_, indentLevel))
-          visitBlock(block, indentLevel)
-          if (prettyPrint && !t.isInline && !t.canInline) indent(indentLevel, true)
+          code.foreach(visit(_, indentLevel, insideMixin))
+          visitBlock(block, indentLevel, insideMixin, neverPrettyPrint)
+          if (prettyPrint && !neverPrettyPrint && !t.isInline && !t.canInline) indent(indentLevel, true, insideMixin)
           buf(q("</") + tagName + ">")
         }
 
@@ -104,7 +115,7 @@ class Compiler(nodes: Seq[Node], prettyPrint: Boolean = false) {
 
       case Comment(value, buffered) =>
         if (buffered) {
-          if (prettyPrint) indent(indentLevel, true)
+          if (prettyPrint) indent(indentLevel, true, insideMixin)
           buf(quote("<!--" + value + "-->"))
         }
 
@@ -119,12 +130,17 @@ class Compiler(nodes: Seq[Node], prettyPrint: Boolean = false) {
 
       case Mixin(name, args, isCall, block) =>
         if (isCall) {
-          builder ++= ("jade_mixin_" + name + args.mkString("(", ", ", ")\n"))
+          builder ++= ("jade_mixin_" + name + args.mkString("(", ", ", ") (" + indentLevel + ", indentLevel => {\n"))
+          visitBlock(block, -1, true)
+          builder ++= ("})\n")
         } else {
-          builder ++= ("def jade_mixin_" + name + args.mkString("(", ", ", ") {\n"))
-          visitBlock(block, indentLevel - 1)
+          builder ++= ("def jade_mixin_" + name + args.mkString("(", ", ", ")(indentLevel: Int, block: Int => Unit) = {\n"))
+          visitBlock(block, indentLevel - 1, true)
           builder ++= ("}\n")
         }
+
+      case MixinBlock =>
+        builder ++= ("block(indentLevel + " + indentLevel + ")\n")
 
       case Empty => //ignore it
     }
@@ -139,21 +155,21 @@ class Compiler(nodes: Seq[Node], prettyPrint: Boolean = false) {
 
   def textTokenValue(tok: Text) = interpolated(tok.value, false)
 
-  def visitBlock(nodes: Seq[Node], indentLevel: Int = 0) {
+  def visitBlock(nodes: Seq[Node], indentLevel: Int = 0, insideMixin: Boolean = false, escape: Boolean = false) {
     val nodesCount = nodes.size
 
-    if (prettyPrint && nodesCount > 1 && Node.isText(nodes(0)) && Node.isText(nodes(1))) {
-      indent(indentLevel + 1, true)
+    if (prettyPrint && nodesCount > 1 && !escape && Node.isText(nodes(0)) && Node.isText(nodes(1))) {
+      indent(indentLevel + 1, true, insideMixin)
     }
 
     for (i <- 0 until nodesCount) {
-      if (prettyPrint && i > 0 && Node.isText(nodes(i - 1)) && Node.isText(nodes(i)))
-        indent(indentLevel + 1)
+      if (prettyPrint && i > 0 && !escape && Node.isText(nodes(i - 1)) && Node.isText(nodes(i)))
+        indent(indentLevel + 1, false, insideMixin)
 
-      visit(nodes(i), indentLevel + 1)
+      visit(nodes(i), indentLevel + 1, insideMixin)
 
       if (prettyPrint && i + 1 < nodesCount && Node.isText(nodes(i)) && Node.isText(nodes(i + 1)))
-        indent(0, true)
+        indent(0, true, false) //to force do not add indentation but just add new line
     }
 
   }
@@ -195,14 +211,23 @@ class Compiler(nodes: Seq[Node], prettyPrint: Boolean = false) {
   def quote(str: String) = "\"" + str + "\"" // """to do not worry about " and ' inside quoted string """
 
   def buf(str: String) {
-    builder ++= ("builder ++= (" + str + ")\n")
-    firstLine = false
+    if (prettyPrint) {
+      builder ++= ("buf(" + str + ")\n")
+    } else {
+      builder ++= ("builder ++= (" + str + ")\n")
+    }
   }
 
-  def indent(offset: Int, newline: Boolean = false) = {
-    val tab = Jade.tab * offset
-    if (newline && !firstLine) buf(quote("\\n"))
-    buf(quote(tab))
+  def indent(offset: Int, newline: Boolean = false, insideMixin: Boolean = false) = {
+
+    if (newline)
+      if (prettyPrint)
+        builder ++= "nl()\n"
+      else
+        buf("\n")
+
+    val tab = if (insideMixin) quote(Jade.tab * offset) + " + (" + quote(Jade.tab) + " * indentLevel)" else quote(Jade.tab * offset)
+    buf(tab)
   }
 
   def isQuoted(str: String) = str.length > 1 && ((str.startsWith("\"") && str.endsWith("\"")) || (str.startsWith("'") && str.endsWith("'")))

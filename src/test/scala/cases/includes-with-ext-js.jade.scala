@@ -11,20 +11,27 @@ class includes_with_ext_js_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("")
-builder ++= ("<" + "html" + "" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "body" + "" + ">")
-builder ++= ("<script type='text/javascript'>\n" + """var x = "\n here is some \n new lined text";""" + "\n</script>")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("</" + "body" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("</" + "html" + ">")
+        var firstLine = true
+        def buf(str: String) {
+          builder ++= str
+          firstLine = false
+        }
+        def nl() = if (!firstLine) buf("\n")
+        nl()
+        buf("")
+        buf("<" + "html" + "" + ">")
+        nl()
+        buf("  ")
+        buf("<" + "body" + "" + ">")
+        buf("<script type='text/javascript'>\n" + """var x = "\n here is some \n new lined text";""" + "\n</script>")
+        nl()
+        buf("  ")
+        buf("</" + "body" + ">")
+        nl()
+        buf("")
+        buf("</" + "html" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -35,4 +42,3 @@ builder.toString
     }
   }
 }
-    

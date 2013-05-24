@@ -11,17 +11,24 @@ class attrs_data_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-val user = ("Tobi")
+        var firstLine = true
+        def buf(str: String) {
+          builder ++= str
+          firstLine = false
+        }
+        def nl() = if (!firstLine) buf("\n")
+        val user = ("Tobi")
 
-builder ++= ("")
-builder ++= ("<" + "foo" + boolAttr(user).map(v => if(v) {" " + "data-user"} else "").getOrElse(falsy(user).map(v => " " + "data-user" + "=" + "'" + escape(v) + "'").getOrElse("")) + ">")
-builder ++= ("</" + "foo" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<" + "bar" + " " + "data-username" + "=" + """'tobi'""" + ">")
-builder ++= ("</" + "bar" + ">")
+        nl()
+        buf("")
+        buf("<" + "foo" + boolAttr(user).map(v => if (v) { " " + "data-user" } else "").getOrElse(falsy(user).map(v => " " + "data-user" + "=" + "'" + escape(v) + "'").getOrElse("")) + ">")
+        buf("</" + "foo" + ">")
+        nl()
+        buf("")
+        buf("<" + "bar" + " " + "data-username" + "=" + """'tobi'""" + ">")
+        buf("</" + "bar" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -32,4 +39,3 @@ builder.toString
     }
   }
 }
-    

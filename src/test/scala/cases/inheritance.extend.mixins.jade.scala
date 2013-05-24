@@ -11,31 +11,48 @@ class inheritance_extend_mixins_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("")
-builder ++= ("<" + "html" + "" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "head" + "" + ">")
-builder ++= ("\n")
-builder ++= ("    ")
-builder ++= ("<" + "title" + "" + ">")
-builder ++= ("""My Application""")
-builder ++= ("</" + "title" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("</" + "head" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "body" + "" + ">")
-jade_mixin_article("The meaning of life")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("</" + "body" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("</" + "html" + ">")
+        var firstLine = true
+        def buf(str: String) {
+          builder ++= str
+          firstLine = false
+        }
+        def nl() = if (!firstLine) buf("\n")
+        def jade_mixin_article(title: String)(indentLevel: Int, block: Int => Unit) = {
+          if (title != null && title != "") {
+            nl()
+            buf("" + ("  " * indentLevel))
+            buf("<" + "h1" + "" + ">")
+            buf(falsy(title).map(v => escape(v)).getOrElse(""))
+            buf("</" + "h1" + ">")
+          }
+        }
+        nl()
+        buf("")
+        buf("<" + "html" + "" + ">")
+        nl()
+        buf("  ")
+        buf("<" + "head" + "" + ">")
+        nl()
+        buf("    ")
+        buf("<" + "title" + "" + ">")
+        buf("""My Application""")
+        buf("</" + "title" + ">")
+        nl()
+        buf("  ")
+        buf("</" + "head" + ">")
+        nl()
+        buf("  ")
+        buf("<" + "body" + "" + ">")
+        jade_mixin_article("The meaning of life")(2, indentLevel => {
+        })
+        nl()
+        buf("  ")
+        buf("</" + "body" + ">")
+        nl()
+        buf("")
+        buf("</" + "html" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -46,4 +63,3 @@ builder.toString
     }
   }
 }
-    

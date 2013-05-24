@@ -11,32 +11,39 @@ class block_expansion_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("")
-builder ++= ("<" + "ul" + "" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "li" + "" + ">")
-builder ++= ("<" + "a" + " " + "href" + "=" + """'#'""" + ">")
-builder ++= ("""foo""")
-builder ++= ("</" + "a" + ">")
-builder ++= ("</" + "li" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "li" + "" + ">")
-builder ++= ("<" + "a" + " " + "href" + "=" + """'#'""" + ">")
-builder ++= ("""bar""")
-builder ++= ("</" + "a" + ">")
-builder ++= ("</" + "li" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("</" + "ul" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("""baz""")
-builder ++= ("</" + "p" + ">")
+        var firstLine = true
+        def buf(str: String) {
+          builder ++= str
+          firstLine = false
+        }
+        def nl() = if (!firstLine) buf("\n")
+        nl()
+        buf("")
+        buf("<" + "ul" + "" + ">")
+        nl()
+        buf("  ")
+        buf("<" + "li" + "" + ">")
+        buf("<" + "a" + " " + "href" + "=" + """'#'""" + ">")
+        buf("""foo""")
+        buf("</" + "a" + ">")
+        buf("</" + "li" + ">")
+        nl()
+        buf("  ")
+        buf("<" + "li" + "" + ">")
+        buf("<" + "a" + " " + "href" + "=" + """'#'""" + ">")
+        buf("""bar""")
+        buf("</" + "a" + ">")
+        buf("</" + "li" + ">")
+        nl()
+        buf("")
+        buf("</" + "ul" + ">")
+        nl()
+        buf("")
+        buf("<" + "p" + "" + ">")
+        buf("""baz""")
+        buf("</" + "p" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -47,4 +54,3 @@ builder.toString
     }
   }
 }
-    

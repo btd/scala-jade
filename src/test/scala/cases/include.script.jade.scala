@@ -11,29 +11,36 @@ class include_script_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("")
-builder ++= ("<" + "script" + " " + "id" + "=" + """'pet-template'""" + " " + "type" + "=" + """'text/x-template'""" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "div" + " " + "class" + "=" + """'pet'""" + ">")
-builder ++= ("\n")
-builder ++= ("    ")
-builder ++= ("<" + "h1" + "" + ">")
-builder ++= ("""{{name}}""")
-builder ++= ("</" + "h1" + ">")
-builder ++= ("\n")
-builder ++= ("    ")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("""{{name}} is a {{species}} that is {{age}} old""")
-builder ++= ("</" + "p" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("</" + "div" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("</" + "script" + ">")
+        var firstLine = true
+        def buf(str: String) {
+          builder ++= str
+          firstLine = false
+        }
+        def nl() = if (!firstLine) buf("\n")
+        nl()
+        buf("")
+        buf("<" + "script" + " " + "id" + "=" + """'pet-template'""" + " " + "type" + "=" + """'text/x-template'""" + ">")
+        nl()
+        buf("  ")
+        buf("<" + "div" + " " + "class" + "=" + """'pet'""" + ">")
+        nl()
+        buf("    ")
+        buf("<" + "h1" + "" + ">")
+        buf("""{{name}}""")
+        buf("</" + "h1" + ">")
+        nl()
+        buf("    ")
+        buf("<" + "p" + "" + ">")
+        buf("""{{name}} is a {{species}} that is {{age}} old""")
+        buf("</" + "p" + ">")
+        nl()
+        buf("  ")
+        buf("</" + "div" + ">")
+        nl()
+        buf("")
+        buf("</" + "script" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -44,4 +51,3 @@ builder.toString
     }
   }
 }
-    

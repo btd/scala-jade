@@ -11,25 +11,33 @@ class includes_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-def jade_mixin_foo() {
-builder ++= ("")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("""bar""")
-builder ++= ("</" + "p" + ">")
-}
-jade_mixin_foo()
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<" + "body" + "" + ">")
-builder ++= ("""<p>:)</p>""")
-builder ++= ("""<script>
+        var firstLine = true
+        def buf(str: String) {
+          builder ++= str
+          firstLine = false
+        }
+        def nl() = if (!firstLine) buf("\n")
+        def jade_mixin_foo()(indentLevel: Int, block: Int => Unit) = {
+          nl()
+          buf("" + ("  " * indentLevel))
+          buf("<" + "p" + "" + ">")
+          buf("""bar""")
+          buf("</" + "p" + ">")
+        }
+        jade_mixin_foo()(0, indentLevel => {
+        })
+        nl()
+        buf("")
+        buf("<" + "body" + "" + ">")
+        buf("""<p>:)</p>""")
+        buf("""<script>
   console.log("foo\nbar")
 </script>""")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("</" + "body" + ">")
+        nl()
+        buf("")
+        buf("</" + "body" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -40,4 +48,3 @@ builder.toString
     }
   }
 }
-    

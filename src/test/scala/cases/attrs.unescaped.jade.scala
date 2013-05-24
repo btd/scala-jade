@@ -11,24 +11,31 @@ class attrs_unescaped_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("")
-builder ++= ("<" + "script" + " " + "type" + "=" + """'text/x-template'""" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "div" + " " + "id" + "=" + """'user-<%= user.id %>'""" + ">")
-builder ++= ("\n")
-builder ++= ("    ")
-builder ++= ("<" + "h1" + "" + ">")
-builder ++= ("""<%= user.title %>""")
-builder ++= ("</" + "h1" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("</" + "div" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("</" + "script" + ">")
+        var firstLine = true
+        def buf(str: String) {
+          builder ++= str
+          firstLine = false
+        }
+        def nl() = if (!firstLine) buf("\n")
+        nl()
+        buf("")
+        buf("<" + "script" + " " + "type" + "=" + """'text/x-template'""" + ">")
+        nl()
+        buf("  ")
+        buf("<" + "div" + " " + "id" + "=" + """'user-<%= user.id %>'""" + ">")
+        nl()
+        buf("    ")
+        buf("<" + "h1" + "" + ">")
+        buf("""<%= user.title %>""")
+        buf("</" + "h1" + ">")
+        nl()
+        buf("  ")
+        buf("</" + "div" + ">")
+        nl()
+        buf("")
+        buf("</" + "script" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -39,4 +46,3 @@ builder.toString
     }
   }
 }
-    

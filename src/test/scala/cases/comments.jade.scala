@@ -11,47 +11,54 @@ class comments_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("")
-builder ++= ("<!-- foo-->")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<" + "ul" + "" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<!-- bar-->")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "li" + "" + ">")
-builder ++= ("""one""")
-builder ++= ("</" + "li" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("</" + "ul" + ">")
-builder ++= ("<!-- asdf")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<!-- baz-->")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<" + "li" + "" + ">")
-builder ++= ("""two""")
-builder ++= ("</" + "li" + ">")
-builder ++= ("-->")
-builder ++= ("<!--")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<" + "ul" + "" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "li" + "" + ">")
-builder ++= ("""foo""")
-builder ++= ("</" + "li" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("</" + "ul" + ">")
-builder ++= ("-->")
+        var firstLine = true
+        def buf(str: String) {
+          builder ++= str
+          firstLine = false
+        }
+        def nl() = if (!firstLine) buf("\n")
+        nl()
+        buf("")
+        buf("<!-- foo-->")
+        nl()
+        buf("")
+        buf("<" + "ul" + "" + ">")
+        nl()
+        buf("  ")
+        buf("<!-- bar-->")
+        nl()
+        buf("  ")
+        buf("<" + "li" + "" + ">")
+        buf("""one""")
+        buf("</" + "li" + ">")
+        nl()
+        buf("")
+        buf("</" + "ul" + ">")
+        buf("<!-- asdf")
+        nl()
+        buf("")
+        buf("<!-- baz-->")
+        nl()
+        buf("")
+        buf("<" + "li" + "" + ">")
+        buf("""two""")
+        buf("</" + "li" + ">")
+        buf("-->")
+        buf("<!--")
+        nl()
+        buf("")
+        buf("<" + "ul" + "" + ">")
+        nl()
+        buf("  ")
+        buf("<" + "li" + "" + ">")
+        buf("""foo""")
+        buf("</" + "li" + ">")
+        nl()
+        buf("")
+        buf("</" + "ul" + ">")
+        buf("-->")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -62,4 +69,3 @@ builder.toString
     }
   }
 }
-    

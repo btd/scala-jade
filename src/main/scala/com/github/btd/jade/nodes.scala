@@ -38,7 +38,7 @@ case class Tag(
       if (block.size == 1) isInline(block.head)
       else {
         if (block.forall(isInline)) {
-          !block.zip(block.tail).contains((p: (Node, Node)) => isText(p._1) && isText(p._2))
+          !block.filter(_ != Empty).zip(block.tail).exists((p: (Node, Node)) => isText(p._1) && isText(p._2))
         } else false
       }
     }
@@ -50,6 +50,7 @@ case class NodeSeq(nodes: Seq[Node]) extends Node with collection.SeqProxy[Node]
 }
 
 case class Mixin(name: String, args: Seq[String], call: Boolean = false, block: Seq[Node] = Seq()) extends Node
+case object MixinBlock extends Node
 
 case class Literal(value: String) extends Node
 

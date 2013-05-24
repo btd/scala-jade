@@ -11,30 +11,37 @@ class filters_cdata_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-case class User(name: String, age: Int)
+        var firstLine = true
+        def buf(str: String) {
+          builder ++= str
+          firstLine = false
+        }
+        def nl() = if (!firstLine) buf("\n")
+        case class User(name: String, age: Int)
 
-val users = (User("tobi",  2 ) :: Nil)
+        val users = (User("tobi", 2) :: Nil)
 
-builder ++= ("")
-builder ++= ("<" + "fb:users" + "" + ">")
-for(user <- users) {
-val age = (user.age)
+        nl()
+        buf("")
+        buf("<" + "fb:users" + "" + ">")
+        for (user <- users) {
+          val age = (user.age)
 
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "fb:user" + boolAttr(age).map(v => if(v) {" " + "age"} else "").getOrElse(falsy(age).map(v => " " + "age" + "=" + "'" + escape(v) + "'").getOrElse("")) + ">")
-val name = (user.name)
+          nl()
+          buf("  ")
+          buf("<" + "fb:user" + boolAttr(age).map(v => if (v) { " " + "age" } else "").getOrElse(falsy(age).map(v => " " + "age" + "=" + "'" + escape(v) + "'").getOrElse("")) + ">")
+          val name = (user.name)
 
-builder ++= ("<![CDATA[\n" + """""" + escape((name).toString) + """"""+ "\n]]>")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("</" + "fb:user" + ">")
-}
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("</" + "fb:users" + ">")
+          buf("<![CDATA[\n" + """""" + escape((name).toString) + """""" + "\n]]>")
+          nl()
+          buf("  ")
+          buf("</" + "fb:user" + ">")
+        }
+        nl()
+        buf("")
+        buf("</" + "fb:users" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -45,4 +52,3 @@ builder.toString
     }
   }
 }
-    

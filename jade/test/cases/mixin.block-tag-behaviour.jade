@@ -1,14 +1,14 @@
 
-mixin article(name)
+mixin article1(name: String)
   section.article
     h1= name
     block
 
 html
   body
-    +article('Foo'): p I'm article foo
+    +article1("Foo"): p I'm article foo
 
-mixin article(name)
+mixin article2(name: String)
   section.article
     h1= name
     p
@@ -16,7 +16,7 @@ mixin article(name)
 
 html
   body
-    +article('Something').
+    +article2("Something").
       I'm a much longer
       text-only article,
       but you can still

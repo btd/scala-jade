@@ -11,84 +11,90 @@ class code_conditionals_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-if (true) {
-builder ++= ("")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("""foo""")
-builder ++= ("</" + "p" + ">")
-}
-else {
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("""bar""")
-builder ++= ("</" + "p" + ">")
-}
-if (true) { {
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("""foo""")
-builder ++= ("</" + "p" + ">")
-}
-} else { {
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("""bar""")
-builder ++= ("</" + "p" + ">")
-}
-}
+        var firstLine = true
+        def buf(str: String) {
+          builder ++= str
+          firstLine = false
+        }
+        def nl() = if (!firstLine) buf("\n")
+        if (true) {
+          nl()
+          buf("")
+          buf("<" + "p" + "" + ">")
+          buf("""foo""")
+          buf("</" + "p" + ">")
+        } else {
+          nl()
+          buf("")
+          buf("<" + "p" + "" + ">")
+          buf("""bar""")
+          buf("</" + "p" + ">")
+        }
+        if (true) {
+          {
+            nl()
+            buf("")
+            buf("<" + "p" + "" + ">")
+            buf("""foo""")
+            buf("</" + "p" + ">")
+          }
+        } else {
+          {
+            nl()
+            buf("")
+            buf("<" + "p" + "" + ">")
+            buf("""bar""")
+            buf("</" + "p" + ">")
+          }
+        }
 
-if( true) {
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("""foo""")
-builder ++= ("</" + "p" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("""bar""")
-builder ++= ("</" + "p" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("""baz""")
-builder ++= ("</" + "p" + ">")
-}
-else {
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("""bar""")
-builder ++= ("</" + "p" + ">")
-}
-if(!( true)) {
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("""foo""")
-builder ++= ("</" + "p" + ">")
-}
-else {
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("""bar""")
-builder ++= ("</" + "p" + ">")
-}
-if(!( "nested".isEmpty)) {
-if(!( "works".isEmpty)) {
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("""yay""")
-builder ++= ("</" + "p" + ">")
-}
-}
+        if (true) {
+          nl()
+          buf("")
+          buf("<" + "p" + "" + ">")
+          buf("""foo""")
+          buf("</" + "p" + ">")
+          nl()
+          buf("")
+          buf("<" + "p" + "" + ">")
+          buf("""bar""")
+          buf("</" + "p" + ">")
+          nl()
+          buf("")
+          buf("<" + "p" + "" + ">")
+          buf("""baz""")
+          buf("</" + "p" + ">")
+        } else {
+          nl()
+          buf("")
+          buf("<" + "p" + "" + ">")
+          buf("""bar""")
+          buf("</" + "p" + ">")
+        }
+        if (!(true)) {
+          nl()
+          buf("")
+          buf("<" + "p" + "" + ">")
+          buf("""foo""")
+          buf("</" + "p" + ">")
+        } else {
+          nl()
+          buf("")
+          buf("<" + "p" + "" + ">")
+          buf("""bar""")
+          buf("</" + "p" + ">")
+        }
+        if (!("nested".isEmpty)) {
+          if (!("works".isEmpty)) {
+            nl()
+            buf("")
+            buf("<" + "p" + "" + ">")
+            buf("""yay""")
+            buf("</" + "p" + ">")
+          }
+        }
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -99,4 +105,3 @@ builder.toString
     }
   }
 }
-    

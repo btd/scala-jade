@@ -11,35 +11,42 @@ class include_extends_from_root_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("")
-builder ++= ("<" + "html" + "" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "head" + "" + ">")
-builder ++= ("\n")
-builder ++= ("    ")
-builder ++= ("<" + "title" + "" + ">")
-builder ++= ("""My Application""")
-builder ++= ("</" + "title" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("</" + "head" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "body" + "" + ">")
-builder ++= ("\n")
-builder ++= ("    ")
-builder ++= ("<" + "h1" + "" + ">")
-builder ++= ("""hello""")
-builder ++= ("</" + "h1" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("</" + "body" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("</" + "html" + ">")
+        var firstLine = true
+        def buf(str: String) {
+          builder ++= str
+          firstLine = false
+        }
+        def nl() = if (!firstLine) buf("\n")
+        nl()
+        buf("")
+        buf("<" + "html" + "" + ">")
+        nl()
+        buf("  ")
+        buf("<" + "head" + "" + ">")
+        nl()
+        buf("    ")
+        buf("<" + "title" + "" + ">")
+        buf("""My Application""")
+        buf("</" + "title" + ">")
+        nl()
+        buf("  ")
+        buf("</" + "head" + ">")
+        nl()
+        buf("  ")
+        buf("<" + "body" + "" + ">")
+        nl()
+        buf("    ")
+        buf("<" + "h1" + "" + ">")
+        buf("""hello""")
+        buf("</" + "h1" + ">")
+        nl()
+        buf("  ")
+        buf("</" + "body" + ">")
+        nl()
+        buf("")
+        buf("</" + "html" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -50,4 +57,3 @@ builder.toString
     }
   }
 }
-    

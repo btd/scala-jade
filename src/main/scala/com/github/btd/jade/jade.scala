@@ -5,7 +5,7 @@ object Jade {
 
   var textOnlyTags = Set("style" -> None, "script" -> Some("type" -> "text/javascript"))
 
-  var getInput: String => (String, String) = blockName => ("test.jade", "")
+  var sourceLoader: SourceLoader = new NoopSourceLoader
 
   //TODO separate filters and transformers
   val filters: Map[String, String => String] = Map(
@@ -35,4 +35,64 @@ object Jade {
 
   var quote = "'"
 
+  var neverPrettyPrint = Set("pre")
+
+}
+
+trait SourceLoader {
+  def getInput(name: String): (String, String)
+}
+
+class NoopSourceLoader extends SourceLoader {
+  def getInput(ignore: String): (String, String) = throw new Exception("I don't know how to load")
+}
+
+import com.typesafe.scalalogging.slf4j._
+
+class FileSourceLoader(baseDirs: Seq[String]) extends SourceLoader with Logging {
+  def stripBOM(value: java.io.File) = {
+    val BOM_SIZE = 4
+    val EF = 0xEF.toByte
+    val BB = 0xBB.toByte
+    val BF = 0xBF.toByte
+    val FE = 0xFE.toByte
+    val FF = 0xFF.toByte
+    val bom = Array.ofDim[Byte](BOM_SIZE)
+    val in = new java.io.PushbackInputStream(new java.io.FileInputStream(value), BOM_SIZE)
+    val readSize = in.read(bom, 0, bom.length)
+    val (bomSize, encoding) = bom.toList match {
+      case EF :: BB :: BF :: xs => (3, "UTF-8")
+      case FE :: FF :: xs => (2, "UTF-16BE")
+      case FF :: FE :: xs => (2, "UTF-16LE")
+      case _ => (0, "UTF-8")
+    }
+    in.unread(bom, bomSize, readSize - bomSize)
+    val s = io.Source.fromInputStream(new java.io.BufferedInputStream(in), encoding)
+    val content = s.getLines.mkString("\n")
+    s.close
+    content
+  }
+
+  def tryFoundFileByName(baseDir: String, name: String) = {
+    logger.debug(s"Try to find file $name in $baseDir")
+    val path = Path.join(baseDir, name)
+    val file = new java.io.File(path)
+    logger.debug(s"Computed path $path")
+    if (!file.exists) None
+    else {
+      Some((name, stripBOM(file)))
+    }
+  }
+
+  def getInput(name: String) = {
+    baseDirs
+      .toStream
+      .map(bd =>
+        tryFoundFileByName(bd, name)
+          .orElse(
+            tryFoundFileByName(bd, name + Jade.fileExt)
+          )
+      ).find(_.isDefined)
+      .map(_.get).getOrElse(throw new Exception(s"File $name not found"))
+  }
 }

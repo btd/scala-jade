@@ -11,17 +11,24 @@ class include_extends_of_common_template_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("")
-builder ++= ("<" + "div" + "" + ">")
-builder ++= ("""test1""")
-builder ++= ("</" + "div" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<" + "div" + "" + ">")
-builder ++= ("""test2""")
-builder ++= ("</" + "div" + ">")
+        var firstLine = true
+        def buf(str: String) {
+          builder ++= str
+          firstLine = false
+        }
+        def nl() = if (!firstLine) buf("\n")
+        nl()
+        buf("")
+        buf("<" + "div" + "" + ">")
+        buf("""test1""")
+        buf("</" + "div" + ">")
+        nl()
+        buf("")
+        buf("<" + "div" + "" + ">")
+        buf("""test2""")
+        buf("</" + "div" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -32,4 +39,3 @@ builder.toString
     }
   }
 }
-    

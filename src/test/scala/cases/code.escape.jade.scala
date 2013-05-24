@@ -11,17 +11,24 @@ class code_escape_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= (falsy("<script>").map(v => escape(v)).getOrElse(""))
-builder ++= ("</" + "p" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= (falsy("<script>").map(v => v).getOrElse(""))
-builder ++= ("</" + "p" + ">")
+        var firstLine = true
+        def buf(str: String) {
+          builder ++= str
+          firstLine = false
+        }
+        def nl() = if (!firstLine) buf("\n")
+        nl()
+        buf("")
+        buf("<" + "p" + "" + ">")
+        buf(falsy("<script>").map(v => escape(v)).getOrElse(""))
+        buf("</" + "p" + ">")
+        nl()
+        buf("")
+        buf("<" + "p" + "" + ">")
+        buf(falsy("<script>").map(v => v).getOrElse(""))
+        buf("</" + "p" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -32,4 +39,3 @@ builder.toString
     }
   }
 }
-    

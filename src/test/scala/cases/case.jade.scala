@@ -11,44 +11,51 @@ class case_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("")
-builder ++= ("<" + "html" + "" + ">")
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("<" + "body" + "" + ">")
-val friends = (1)
+        var firstLine = true
+        def buf(str: String) {
+          builder ++= str
+          firstLine = false
+        }
+        def nl() = if (!firstLine) buf("\n")
+        nl()
+        buf("")
+        buf("<" + "html" + "" + ">")
+        nl()
+        buf("  ")
+        buf("<" + "body" + "" + ">")
+        val friends = (1)
 
-(friends) match {
-case 0 => {
-builder ++= ("\n")
-builder ++= ("    ")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("""you have no friends""")
-builder ++= ("</" + "p" + ">")
-}
-case 1 => {
-builder ++= ("\n")
-builder ++= ("    ")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("""you have a friend""")
-builder ++= ("</" + "p" + ">")
-}
-case _ => {
-builder ++= ("\n")
-builder ++= ("    ")
-builder ++= ("<" + "p" + "" + ">")
-builder ++= ("""you have """ + escape((friends).toString) + """ friends""")
-builder ++= ("</" + "p" + ">")
-}
-}
-builder ++= ("\n")
-builder ++= ("  ")
-builder ++= ("</" + "body" + ">")
-builder ++= ("\n")
-builder ++= ("")
-builder ++= ("</" + "html" + ">")
+        (friends) match {
+          case 0 => {
+            nl()
+            buf("    ")
+            buf("<" + "p" + "" + ">")
+            buf("""you have no friends""")
+            buf("</" + "p" + ">")
+          }
+          case 1 => {
+            nl()
+            buf("    ")
+            buf("<" + "p" + "" + ">")
+            buf("""you have a friend""")
+            buf("</" + "p" + ">")
+          }
+          case _ => {
+            nl()
+            buf("    ")
+            buf("<" + "p" + "" + ">")
+            buf("""you have """ + escape((friends).toString) + """ friends""")
+            buf("</" + "p" + ">")
+          }
+        }
+        nl()
+        buf("  ")
+        buf("</" + "body" + ">")
+        nl()
+        buf("")
+        buf("</" + "html" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -59,4 +66,3 @@ builder.toString
     }
   }
 }
-    

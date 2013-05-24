@@ -11,12 +11,18 @@ class classes_jadeSpec extends Specification {
 
       def apply() = {
         val builder = new collection.mutable.StringBuilder
-builder ++= ("<" + "a" + " " + "class" + "=" + """'foo bar'""" + ">")
-builder ++= ("</" + "a" + ">")
-builder ++= ("<" + "a" + " " + "class" + "=" + """'foo-bar_baz'""" + ">")
-builder ++= ("</" + "a" + ">")
+        var firstLine = true
+        def buf(str: String) {
+          builder ++= str
+          firstLine = false
+        }
+        def nl() = if (!firstLine) buf("\n")
+        buf("<" + "a" + " " + "class" + "=" + """'foo bar'""" + ">")
+        buf("</" + "a" + ">")
+        buf("<" + "a" + " " + "class" + "=" + """'foo-bar_baz'""" + ">")
+        buf("</" + "a" + ">")
 
-builder.toString
+        builder.toString
 
       }
     }
@@ -27,4 +33,3 @@ builder.toString
     }
   }
 }
-    
