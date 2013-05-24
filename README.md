@@ -1,5 +1,6 @@
-A sample for the Typesafe Stack (http://typesafe.com/stack).
+Scala Jade
+==========
 
-Scala sample project using Scala and SBT.
+Port of original javascript jade to scala.
 
-To run and test it use SBT invoke: 'sbt run'
+It translate jade file to scala source file that you can invoke in your code as usual scala code.
