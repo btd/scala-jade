@@ -25,6 +25,8 @@ class Compiler(nodes: Seq[Node], prettyPrint: Boolean = false) {
 
   val builder = new collection.mutable.StringBuilder
 
+  var tplArgs = ""
+
   builder ++= "val builder = new collection.mutable.StringBuilder\n"
   if (prettyPrint) {
     builder ++= """var firstLine = true
@@ -41,7 +43,8 @@ class Compiler(nodes: Seq[Node], prettyPrint: Boolean = false) {
 
     builder += '\n'
     builder ++= "builder.toString\n"
-    builder.toString
+
+    "def apply(" + tplArgs + ") = {\n" + builder.toString + "\n}\n"
   }
 
   def visit(node: Node, indentLevel: Int = 0, insideMixin: Boolean) {
@@ -157,6 +160,9 @@ class Compiler(nodes: Seq[Node], prettyPrint: Boolean = false) {
 
       case MixinBlock =>
         builder ++= ("block(indentLevel + " + indentLevel + ")\n")
+
+      case TemplateArgs(value) =>
+        tplArgs = value
 
       case Empty => //ignore it
     }

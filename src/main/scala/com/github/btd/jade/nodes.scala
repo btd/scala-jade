@@ -80,6 +80,7 @@ case class Comment(value: String, buffer: Boolean) extends Node
 case class BlockComment(value: String, block: Seq[Node], buffer: Boolean) extends Node
 
 case class Code(value: String, escape: Boolean, buffer: Boolean, block: ?[Seq[Node]]) extends Node
+case class TemplateArgs(value: String) extends Node
 
 case class Case(expr: String, block: Seq[Node]) extends Node
 case class When(expr: String, block: Seq[Node]) extends Node

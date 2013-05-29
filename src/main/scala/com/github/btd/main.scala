@@ -32,14 +32,26 @@ object Main extends App with Logging {
 
 object GenTests extends App with Logging {
   val testCasesJadeDir = "./jade/test/cases"
-  val testOutDir = "./src/test/scala/cases"
-
-  val outdir = new java.io.File(testOutDir)
-  outdir.mkdirs
 
   Jade.sourceLoader = new FileSourceLoader(testCasesJadeDir :: Nil)
 
   val dir = new java.io.File(testCasesJadeDir)
+
+  val writer = new PrintWriter(new BufferedWriter(new FileWriter(new File("./src/test/scala", "cases.scala"))))
+
+  writer.write {
+    s"""
+package com.github.btd.jade
+
+import org.specs2.mutable._
+
+class CasesSpec extends Specification {
+
+  Jade.sourceLoader = new FileSourceLoader("$testCasesJadeDir" :: Nil)
+
+
+  """
+  }
 
   for {
     test <- dir.list
@@ -51,37 +63,33 @@ object GenTests extends App with Logging {
 
     val compiler = new Compiler(parser.parse, true)
 
-    val writer = new PrintWriter(new BufferedWriter(new FileWriter(new File(testOutDir, test + ".scala"))))
-
     val objName = test.replaceAll(".jade", ".html").replaceAll("\\.|-", "_")
 
     writer.write {
       s"""
-package com.github.btd.jade.cases
-
-import org.specs2.mutable._
-
-class ${test.replaceAll("\\.|-", "_")}Spec extends Specification {
   "$test" should {
 
     object ${objName} {
       import com.github.btd.jade.Template._
 
-      def apply() = {
-        ${compiler.compile}
-      }
+      ${compiler.compile}
     }
 
     "be equal expected html" in {
-      val testCaseHtml = io.Source.fromFile(new java.io.File("$testCasesJadeDir", "${test.replaceAll(".jade", ".html")}")).getLines.mkString("\\n")
-      ${objName}() === testCaseHtml
+      val (testFileName, testResult) = Jade.sourceLoader.getInput("/" + "${test.replaceAll(".jade", ".html")}")
+      ${objName}() === testResult
     }
   }
-}
     """
     }
 
-    writer.flush
-    writer.close
   }
+
+  writer.write {
+    s"""
+}
+    """
+  }
+  writer.flush
+  writer.close
 }

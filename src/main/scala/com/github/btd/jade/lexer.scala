@@ -69,6 +69,7 @@ object Tokens {
   }
 
   case class Code(override val value: String, escaped: Boolean = false, buffered: Boolean = false) extends Token
+  case class TemplateArgs(override val value: String) extends Token
 
   case class Call(override val value: String, args: Seq[String] = Seq()) extends Token
 
@@ -178,6 +179,7 @@ class Lexer(var input: String) extends Logging {
       assignment orElse
       tag orElse
       filter orElse
+      tplArgs orElse
       code orElse
       id orElse
       className orElse
@@ -340,6 +342,10 @@ class Lexer(var input: String) extends Logging {
   def code = scan2(codeRE, (flags, c) => {
     Code(c, flags.charAt(0) == '=', flags.charAt(0) == '=' || (flags.length > 1 && flags.charAt(1) == '='))
   })
+
+  private val tplArgsRE = """^-@\(([^\n]*)\)""".r
+
+  def tplArgs = scan1(tplArgsRE, TemplateArgs(_))
 
   private val attrName = """[\w-_:]+"""
 

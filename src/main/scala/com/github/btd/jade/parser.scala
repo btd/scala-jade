@@ -92,6 +92,9 @@ class Parser(var input: String, filename: String) extends Logging {
       case When(value) => parseWhen(value)
       case Default => parseDefault()
       case Code(value, escaped, buffered) => parseCode(value, escaped, buffered)
+      case TemplateArgs(value) =>
+        advance()
+        nodes.TemplateArgs(value)
       case Comment(value, buffered) => parseComment(value, buffered)
       case Doctype(value) => parseDoctype(value)
       case Filter(value) => parseFilter(value)
