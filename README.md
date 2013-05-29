@@ -5,6 +5,22 @@ Port of original javascript jade to scala.
 
 It translate jade file to scala source file that you can invoke in your code as usual scala code.
 
+How to run and play with it
+===========================
+
+See `main.scala` how i generate test cases from jade files.
+
+In short it is:
+
+```scala
+import com.github.btd.jade._
+
+Jade.sourceLoader = new FileSourceLoader("basedir" :: Nil)
+
+val (filename, jadeText) = Jade.sourceLoader.getInput("jadefile.jade")
+println(new Compiler(new Parser(jadeText, filename).parse, true).compile)
+```
+
 
 Contributing
 ============
