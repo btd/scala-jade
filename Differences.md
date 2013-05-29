@@ -12,3 +12,9 @@ Differences with javascript Jade
 5. Mixin call does not support tag attributes
 
 6. Inheritance working not in the same way (see one failing test)
+
+7. To add arguments to template funcion use this code:
+
+```
+-@(arg1: Type, arg2: Type2 = DefaultValue)
+```
